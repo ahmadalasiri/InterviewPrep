@@ -1,0 +1,32 @@
+{
+  "name": "javascript-learning-guide",
+  "version": "1.0.0",
+  "description": "Comprehensive JavaScript learning guide with examples and interview preparation",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{js,json,md}\""
+  },
+  "keywords": [
+    "javascript",
+    "learning",
+    "interview",
+    "tutorial",
+    "examples"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
+

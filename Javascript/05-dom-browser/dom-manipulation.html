@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM Manipulation Examples</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .box {
+            padding: 20px;
+            margin: 10px 0;
+            border: 2px solid #333;
+            border-radius: 5px;
+        }
+
+        .highlight {
+            background-color: yellow;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>DOM Manipulation Examples</h1>
+
+    <!-- 1. Selecting Elements -->
+    <section>
+        <h2>1. Selecting Elements</h2>
+        <div id="myId" class="box">I have an ID</div>
+        <div class="box myClass">I have a class</div>
+        <div class="box myClass">Another element with class</div>
+    </section>
+
+    <!-- 2. Creating and Modifying Elements -->
+    <section>
+        <h2>2. Creating Elements</h2>
+        <button onclick="createElement()">Create Element</button>
+        <div id="container"></div>
+    </section>
+
+    <!-- 3. Event Handling -->
+    <section>
+        <h2>3. Event Handling</h2>
+        <button id="clickBtn">Click Me!</button>
+        <button id="hoverBtn">Hover Over Me!</button>
+        <p id="output"></p>
+    </section>
+
+    <!-- 4. Modifying Styles -->
+    <section>
+        <h2>4. Modifying Styles</h2>
+        <div id="styleBox" class="box">Style me!</div>
+        <button onclick="changeStyle()">Change Style</button>
+    </section>
+
+    <!-- 5. Working with Classes -->
+    <section>
+        <h2>5. Working with Classes</h2>
+        <div id="classBox" class="box">Toggle my class</div>
+        <button onclick="toggleClass()">Toggle Highlight</button>
+    </section>
+
+    <script>
+        // ==========================================
+        // 1. SELECTING ELEMENTS
+        // ==========================================
+
+        // By ID
+        const elementById = document.getElementById('myId');
+        console.log('By ID:', elementById);
+
+        // By class name
+        const elementsByClass = document.getElementsByClassName('myClass');
+        console.log('By Class:', elementsByClass);
+
+        // By tag name
+        const elementsByTag = document.getElementsByTagName('div');
+        console.log('By Tag:', elementsByTag);
+
+        // Query Selector (CSS selector)
+        const firstBox = document.querySelector('.box');
+        console.log('First .box:', firstBox);
+
+        const allBoxes = document.querySelectorAll('.box');
+        console.log('All .box:', allBoxes);
+
+        // ==========================================
+        // 2. CREATING AND MODIFYING ELEMENTS
+        // ==========================================
+
+        function createElement() {
+            // Create element
+            const newDiv = document.createElement('div');
+
+            // Set properties
+            newDiv.className = 'box';
+            newDiv.textContent = 'I was created dynamically!';
+            newDiv.style.backgroundColor = '#e0e0e0';
+
+            // Add to DOM
+            const container = document.getElementById('container');
+            container.appendChild(newDiv);
+
+            // Alternative: innerHTML (be careful with user input!)
+            // container.innerHTML += '<div class="box">New element</div>';
+        }
+
+        // ==========================================
+        // 3. EVENT HANDLING
+        // ==========================================
+
+        // Click event
+        const clickBtn = document.getElementById('clickBtn');
+        clickBtn.addEventListener('click', function () {
+            document.getElementById('output').textContent = 'Button clicked!';
+        });
+
+        // Hover events
+        const hoverBtn = document.getElementById('hoverBtn');
+        hoverBtn.addEventListener('mouseenter', function () {
+            this.style.backgroundColor = '#4CAF50';
+            this.style.color = 'white';
+        });
+
+        hoverBtn.addEventListener('mouseleave', function () {
+            this.style.backgroundColor = '';
+            this.style.color = '';
+        });
+
+        // ==========================================
+        // 4. MODIFYING STYLES
+        // ==========================================
+
+        function changeStyle() {
+            const box = document.getElementById('styleBox');
+            box.style.backgroundColor = '#4CAF50';
+            box.style.color = 'white';
+            box.style.padding = '30px';
+            box.style.transform = 'rotate(5deg)';
+        }
+
+        // ==========================================
+        // 5. WORKING WITH CLASSES
+        // ==========================================
+
+        function toggleClass() {
+            const box = document.getElementById('classBox');
+            box.classList.toggle('highlight');
+
+            // Other class methods:
+            // box.classList.add('highlight');
+            // box.classList.remove('highlight');
+            // box.classList.contains('highlight');
+        }
+
+        // ==========================================
+        // 6. TRAVERSING THE DOM
+        // ==========================================
+
+        console.log('\n=== DOM Traversal ===');
+        const box = document.querySelector('.box');
+        console.log('Parent:', box.parentElement);
+        console.log('Children:', box.children);
+        console.log('Next Sibling:', box.nextElementSibling);
+        console.log('Previous Sibling:', box.previousElementSibling);
+
+        // ==========================================
+        // 7. MODIFYING ATTRIBUTES
+        // ==========================================
+
+        const link = document.createElement('a');
+        link.setAttribute('href', 'https://example.com');
+        link.setAttribute('target', '_blank');
+        link.textContent = 'Click here';
+
+        console.log('Has href:', link.hasAttribute('href'));
+        console.log('Get href:', link.getAttribute('href'));
+        // link.removeAttribute('target');
+
+        // ==========================================
+        // 8. WORKING WITH FORMS
+        // ==========================================
+
+        // Example (would need actual form elements)
+        /*
+        const input = document.querySelector('input');
+        input.value = 'New value';
+        input.focus();
+        input.addEventListener('input', (e) => {
+            console.log('Value:', e.target.value);
+        });
+        */
+
+        // ==========================================
+        // 9. EVENT DELEGATION
+        // ==========================================
+
+        document.body.addEventListener('click', function (e) {
+            if (e.target.matches('button')) {
+                console.log('Button clicked:', e.target.textContent);
+            }
+        });
+
+        // ==========================================
+        // BEST PRACTICES
+        // ==========================================
+
+        console.log('\n=== Best Practices ===');
+        console.log('✓ Use querySelector/querySelectorAll for flexibility');
+        console.log('✓ Cache DOM selections when used multiple times');
+        console.log('✓ Use event delegation for dynamic elements');
+        console.log('✓ Modify classes instead of inline styles when possible');
+        console.log('✓ Use textContent instead of innerHTML when possible');
+    </script>
+</body>
+
+</html>
