@@ -1,0 +1,32 @@
+{
+  "name": "nodejs-interview-prep",
+  "version": "1.0.0",
+  "description": "Comprehensive Node.js learning materials and interview preparation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node 05-express/basic-server.js",
+    "dev": "nodemon 05-express/basic-server.js"
+  },
+  "keywords": [
+    "nodejs",
+    "interview",
+    "learning",
+    "tutorial",
+    "express",
+    "async",
+    "javascript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
+
