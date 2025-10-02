@@ -1,0 +1,31 @@
+{
+  "name": "oop-typescript-examples",
+  "version": "1.0.0",
+  "description": "Object-Oriented Programming examples in TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/01-classes-objects.js",
+    "example:classes": "ts-node 01-classes-objects.ts",
+    "example:inheritance": "ts-node 02-inheritance.ts",
+    "example:polymorphism": "ts-node 03-polymorphism.ts",
+    "example:patterns": "ts-node 04-design-patterns.ts",
+    "example:all": "npm run example:classes && npm run example:inheritance && npm run example:polymorphism && npm run example:patterns",
+    "clean": "rm -rf dist *.js"
+  },
+  "keywords": [
+    "oop",
+    "typescript",
+    "design-patterns",
+    "inheritance",
+    "polymorphism",
+    "encapsulation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.0"
+  }
+}
