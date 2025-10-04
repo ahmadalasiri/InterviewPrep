@@ -110,6 +110,10 @@
 - [Composition vs Inheritance](https://www.thoughtworks.com/insights/blog/composition-vs-inheritance-how-choose)
 - [Design Patterns Explained](https://sourcemaking.com/design_patterns)
 
+### Video Tutorials
+
+- [Composition VS Inheritance | JavaScript Interview questions](https://www.youtube.com/watch?v=XVRuNpokVx0) - tutorial covering composition vs inheritance concepts for JavaScript interviews
+
 ## GitHub Repositories
 
 ### Code Examples
