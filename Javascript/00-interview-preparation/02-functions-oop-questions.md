@@ -7,6 +7,7 @@
 - [This Keyword](#this-keyword)
 - [Prototypes](#prototypes)
 - [Classes and OOP](#classes-and-oop)
+- [Composition vs Inheritance](#composition-vs-inheritance)
 
 ---
 
@@ -755,6 +756,360 @@ account.deposit(500);
 console.log(account.balance); // 1500
 // console.log(account.#balance); // SyntaxError: Private field
 ```
+
+---
+
+## Composition vs Inheritance
+
+### Q8: When should you use composition over inheritance in JavaScript?
+
+**Answer:**
+
+**Composition** ("has-a") and **Inheritance** ("is-a") are two ways to build relationships between objects. The principle **"Favor composition over inheritance"** is especially relevant in JavaScript.
+
+**Key Differences:**
+
+| Aspect | Inheritance | Composition |
+|--------|-------------|-------------|
+| Relationship | "is-a" | "has-a" or "uses-a" |
+| Coupling | Tight (child depends on parent) | Loose (components independent) |
+| Flexibility | Fixed at definition | Can change at runtime |
+| Reusability | Vertical (class hierarchy) | Horizontal (mix behaviors) |
+| Testing | Harder (need parent context) | Easier (mock components) |
+
+**When to Use Inheritance:**
+
+✅ Clear "is-a" relationship exists
+✅ Shared interface is important
+✅ Polymorphism is needed
+✅ Shallow hierarchy (2-3 levels max)
+
+**When to Use Composition:**
+
+✅ "has-a" or "uses-a" relationship
+✅ Need flexibility and runtime changes
+✅ Combining multiple behaviors
+✅ Better testability required
+✅ Avoiding deep hierarchies
+
+---
+
+**Example 1: The Problem with Inheritance**
+
+```javascript
+// ❌ BAD: Inheritance creates rigid hierarchies
+class Bird {
+  fly() {
+    return "Flying in the sky";
+  }
+}
+
+class Penguin extends Bird {
+  // Problem: Penguins can't fly!
+  fly() {
+    throw new Error("Penguins can't fly!");
+  }
+}
+
+class Ostrich extends Bird {
+  // Problem: Ostriches can't fly either!
+  fly() {
+    throw new Error("Ostriches can't fly!");
+  }
+}
+
+// This violates Liskov Substitution Principle
+```
+
+**Example 2: Better Solution with Composition**
+
+```javascript
+// ✅ GOOD: Composition provides flexibility
+const canFly = {
+  fly() {
+    return `${this.name} is flying`;
+  }
+};
+
+const canSwim = {
+  swim() {
+    return `${this.name} is swimming`;
+  }
+};
+
+const canWalk = {
+  walk() {
+    return `${this.name} is walking`;
+  }
+};
+
+// Factory function with composition
+function createBird(name, behaviors) {
+  return {
+    name,
+    ...behaviors
+  };
+}
+
+const sparrow = createBird('Sparrow', { ...canFly, ...canWalk });
+const penguin = createBird('Penguin', { ...canSwim, ...canWalk });
+const duck = createBird('Duck', { ...canFly, ...canSwim, ...canWalk });
+
+console.log(sparrow.fly());   // Sparrow is flying
+console.log(penguin.swim());  // Penguin is swimming
+console.log(duck.fly());      // Duck is flying
+console.log(duck.swim());     // Duck is swimming
+```
+
+---
+
+**Example 3: Composition with Classes**
+
+```javascript
+// Behavior objects (strategies)
+class FlyWithWings {
+  fly() {
+    return "Flying with wings";
+  }
+}
+
+class FlyNoWay {
+  fly() {
+    return "Can't fly";
+  }
+}
+
+class SwimWithLegs {
+  swim() {
+    return "Swimming with legs";
+  }
+}
+
+// Using composition in classes
+class Bird {
+  constructor(name, flyBehavior, swimBehavior = null) {
+    this.name = name;
+    this.flyBehavior = flyBehavior;
+    this.swimBehavior = swimBehavior;
+  }
+
+  performFly() {
+    return this.flyBehavior.fly();
+  }
+
+  performSwim() {
+    return this.swimBehavior ? this.swimBehavior.swim() : "Can't swim";
+  }
+
+  // Can change behavior at runtime
+  setFlyBehavior(flyBehavior) {
+    this.flyBehavior = flyBehavior;
+  }
+}
+
+const sparrow = new Bird('Sparrow', new FlyWithWings());
+const penguin = new Bird('Penguin', new FlyNoWay(), new SwimWithLegs());
+
+console.log(sparrow.performFly());  // Flying with wings
+console.log(penguin.performFly());  // Can't fly
+console.log(penguin.performSwim()); // Swimming with legs
+
+// Runtime behavior change
+penguin.setFlyBehavior(new FlyWithWings());
+console.log(penguin.performFly());  // Flying with wings
+```
+
+---
+
+**Example 4: Object Composition Pattern**
+
+```javascript
+// Plugin/mixin approach
+const withLogging = (obj) => ({
+  ...obj,
+  log(message) {
+    console.log(`[${new Date().toISOString()}] ${message}`);
+  }
+});
+
+const withValidation = (obj) => ({
+  ...obj,
+  validate(data) {
+    if (!data) throw new Error('Data is required');
+    return true;
+  }
+});
+
+const withCache = (obj) => {
+  const cache = new Map();
+  return {
+    ...obj,
+    getCache(key) {
+      return cache.get(key);
+    },
+    setCache(key, value) {
+      cache.set(key, value);
+    }
+  };
+};
+
+// Compose multiple behaviors
+const createService = (name) => {
+  let service = { name };
+  service = withLogging(service);
+  service = withValidation(service);
+  service = withCache(service);
+  return service;
+};
+
+const userService = createService('UserService');
+userService.log('Service created');
+userService.validate({ id: 1 });
+userService.setCache('user:1', { name: 'John' });
+```
+
+---
+
+**Example 5: Function Composition for Behavior**
+
+```javascript
+// Composable functions
+const canEat = (state) => ({
+  eat(food) {
+    console.log(`${state.name} is eating ${food}`);
+  }
+});
+
+const canSleep = (state) => ({
+  sleep(hours) {
+    console.log(`${state.name} is sleeping for ${hours} hours`);
+  }
+});
+
+const canPlay = (state) => ({
+  play(game) {
+    console.log(`${state.name} is playing ${game}`);
+  }
+});
+
+// Factory function combining behaviors
+const createDog = (name) => {
+  const state = { name };
+  
+  return Object.assign(
+    {},
+    canEat(state),
+    canSleep(state),
+    canPlay(state)
+  );
+};
+
+const createRobot = (name) => {
+  const state = { name };
+  
+  return Object.assign(
+    {},
+    canPlay(state) // Robots don't eat or sleep
+  );
+};
+
+const dog = createDog('Buddy');
+dog.eat('bone');     // Buddy is eating bone
+dog.sleep(8);        // Buddy is sleeping for 8 hours
+dog.play('fetch');   // Buddy is playing fetch
+
+const robot = createRobot('R2D2');
+robot.play('chess'); // R2D2 is playing chess
+// robot.eat(); // Error: robot.eat is not a function
+```
+
+---
+
+**Example 6: Real-World Use Case - User Roles**
+
+```javascript
+// ❌ BAD: Deep inheritance hierarchy
+class User {}
+class AdminUser extends User {}
+class SuperAdminUser extends AdminUser {}
+class GuestUser extends User {}
+// Hard to add new roles or combine permissions
+
+// ✅ GOOD: Composition with mixins
+const canRead = {
+  read(resource) {
+    return `Reading ${resource}`;
+  }
+};
+
+const canWrite = {
+  write(resource, data) {
+    return `Writing to ${resource}: ${data}`;
+  }
+};
+
+const canDelete = {
+  delete(resource) {
+    return `Deleting ${resource}`;
+  }
+};
+
+const canManageUsers = {
+  manageUsers() {
+    return 'Managing users';
+  }
+};
+
+// Create users with different permission sets
+function createUser(name, ...permissions) {
+  return {
+    name,
+    ...Object.assign({}, ...permissions)
+  };
+}
+
+const guest = createUser('Guest', canRead);
+const editor = createUser('Editor', canRead, canWrite);
+const admin = createUser('Admin', canRead, canWrite, canDelete, canManageUsers);
+
+console.log(guest.read('article'));        // Reading article
+console.log(editor.write('post', 'data')); // Writing to post: data
+console.log(admin.delete('user'));         // Deleting user
+console.log(admin.manageUsers());          // Managing users
+```
+
+---
+
+**Decision Tree:**
+
+```
+Need to share functionality?
+│
+├─ Is there a TRUE "is-a" relationship?
+│  └─ Yes → Is the hierarchy shallow (2-3 levels)?
+│     ├─ Yes → Consider INHERITANCE
+│     └─ No → Use COMPOSITION
+│
+└─ Need to combine multiple behaviors?
+   └─ Use COMPOSITION
+```
+
+---
+
+**Best Practices:**
+
+1. **Start with Composition** - It's more flexible and easier to refactor
+2. **Use Inheritance for Polymorphism** - When you need a shared interface
+3. **Keep Hierarchies Shallow** - Max 2-3 levels deep
+4. **Prefer Small, Focused Functions** - Easy to compose
+5. **Think in Terms of Behaviors** - Not rigid class structures
+
+**Summary:**
+
+- **Composition** gives you flexibility, testability, and the ability to mix behaviors
+- **Inheritance** is good for true "is-a" relationships with shallow hierarchies
+- Modern JavaScript (and React) heavily favors composition (Hooks, HOCs, Render Props)
+- When in doubt, start with composition
 
 ---
 
