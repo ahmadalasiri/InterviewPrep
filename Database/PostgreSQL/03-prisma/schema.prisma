@@ -1,0 +1,263 @@
+// Prisma Schema Example
+// Complete schema demonstrating various features
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// User Model
+// ============================================
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  username      String    @unique @db.VarChar(50)
+  passwordHash  String    @map("password_hash")
+  name          String?
+  bio           String?   @db.Text
+  avatarUrl     String?   @map("avatar_url")
+  isActive      Boolean   @default(true) @map("is_active")
+  emailVerified Boolean   @default(false) @map("email_verified")
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  profile  Profile?
+  posts    Post[]
+  comments Comment[]
+  likes    Like[]
+  
+  // Self-referential many-to-many
+  following Follow[] @relation("UserFollows")
+  followers Follow[] @relation("UserFollowers")
+  
+  @@map("users")
+  @@index([email])
+  @@index([username])
+}
+
+// ============================================
+// Profile Model (One-to-One)
+// ============================================
+
+model Profile {
+  id          Int     @id @default(autoincrement())
+  userId      Int     @unique @map("user_id")
+  website     String?
+  location    String?
+  dateOfBirth DateTime? @map("date_of_birth") @db.Date
+  phoneNumber String?   @map("phone_number")
+  
+  // Relation
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("profiles")
+}
+
+// ============================================
+// Post Model
+// ============================================
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Post {
+  id           Int        @id @default(autoincrement())
+  title        String     @db.VarChar(255)
+  content      String     @db.Text
+  excerpt      String?
+  slug         String     @unique
+  status       PostStatus @default(DRAFT)
+  viewCount    Int        @default(0) @map("view_count")
+  
+  // Foreign keys
+  authorId     Int        @map("author_id")
+  
+  // Timestamps
+  publishedAt  DateTime?  @map("published_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  
+  // Relations
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  likes     Like[]
+  tags      Tag[]
+  
+  @@map("posts")
+  @@index([authorId])
+  @@index([status, publishedAt])
+  @@index([slug])
+}
+
+// ============================================
+// Comment Model
+// ============================================
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  postId    Int      @map("post_id")
+  userId    Int      @map("user_id")
+  parentId  Int?     @map("parent_id")
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
+  
+  @@map("comments")
+  @@index([postId])
+  @@index([userId])
+  @@index([parentId])
+}
+
+// ============================================
+// Like Model
+// ============================================
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  postId    Int      @map("post_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, postId])
+  @@map("likes")
+  @@index([postId])
+}
+
+// ============================================
+// Tag Model (Many-to-Many)
+// ============================================
+
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique @db.VarChar(50)
+  slug  String @unique
+  posts Post[]
+  
+  @@map("tags")
+}
+
+// ============================================
+// Follow Model (Self-Referential Many-to-Many)
+// ============================================
+
+model Follow {
+  followerId  Int      @map("follower_id")
+  followingId Int      @map("following_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  // Relations
+  follower  User @relation("UserFollows", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+  
+  @@id([followerId, followingId])
+  @@map("follows")
+  @@index([followerId])
+  @@index([followingId])
+}
+
+// ============================================
+// E-commerce Models
+// ============================================
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?  @db.Text
+  price       Decimal  @db.Decimal(10, 2)
+  stock       Int      @default(0)
+  sku         String   @unique
+  isActive    Boolean  @default(true) @map("is_active")
+  categoryId  Int      @map("category_id")
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  category   Category    @relation(fields: [categoryId], references: [id])
+  orderItems OrderItem[]
+  
+  @@map("products")
+  @@index([categoryId])
+  @@index([sku])
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  slug     String    @unique
+  products Product[]
+  
+  @@map("categories")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id            Int         @id @default(autoincrement())
+  orderNumber   String      @unique @map("order_number")
+  userId        Int         @map("user_id")
+  status        OrderStatus @default(PENDING)
+  subtotal      Decimal     @db.Decimal(10, 2)
+  tax           Decimal     @db.Decimal(10, 2) @default(0)
+  shippingCost  Decimal     @map("shipping_cost") @db.Decimal(10, 2) @default(0)
+  total         Decimal     @db.Decimal(10, 2)
+  
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  items OrderItem[]
+  
+  @@map("orders")
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int     @map("order_id")
+  productId Int     @map("product_id")
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2)
+  
+  // Relations
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+  
+  @@map("order_items")
+  @@index([orderId])
+  @@index([productId])
+}
