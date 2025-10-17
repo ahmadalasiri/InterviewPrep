@@ -1,0 +1,179 @@
+# Docker Compose Networking Examples
+
+version: "3.8"
+
+services:
+  # ================================
+  # Example 1: Basic Multi-tier Application
+  # ================================
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    networks:
+      - frontend-net
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    networks:
+      - frontend-net
+      - backend-net
+    depends_on:
+      - database
+
+  database:
+    image: postgres:15
+    networks:
+      - backend-net
+    environment:
+      POSTGRES_PASSWORD: secret
+
+networks:
+  frontend-net:
+    driver: bridge
+  backend-net:
+    driver: bridge
+    internal: true # No external access
+
+---
+# ================================
+# Example 2: Custom Network with Subnet
+# ================================
+version: "3.8"
+
+services:
+  app:
+    image: myapp:latest
+    networks:
+      custom-net:
+        ipv4_address: 172.28.1.10
+
+networks:
+  custom-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
+
+---
+# ================================
+# Example 3: Service Discovery
+# ================================
+version: "3.8"
+
+services:
+  web:
+    image: nginx:alpine
+    networks:
+      - app-network
+    # Can reach api via http://api:3000
+
+  api:
+    image: node:18-alpine
+    command: node server.js
+    networks:
+      - app-network
+    environment:
+      # Can reach db via hostname 'database'
+      DB_HOST: database
+
+  database:
+    image: postgres:15
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+---
+# ================================
+# Example 4: Network Aliases
+# ================================
+version: "3.8"
+
+services:
+  api:
+    image: myapi:latest
+    networks:
+      app-net:
+        aliases:
+          - api-service
+          - backend-api
+
+  web:
+    image: nginx:alpine
+    networks:
+      - app-net
+    # Can reach api via:
+    # - http://api:3000
+    # - http://api-service:3000
+    # - http://backend-api:3000
+
+networks:
+  app-net:
+
+---
+# ================================
+# Example 5: External Network
+# ================================
+version: "3.8"
+
+services:
+  app:
+    image: myapp:latest
+    networks:
+      - existing-network
+
+networks:
+  existing-network:
+    external: true
+    name: my-pre-existing-network
+
+---
+# ================================
+# Example 6: Multiple Networks
+# ================================
+version: "3.8"
+
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    networks:
+      - public
+
+  app:
+    image: myapp:latest
+    networks:
+      - public
+      - private
+
+  db:
+    image: postgres:15
+    networks:
+      - private
+
+networks:
+  public:
+    driver: bridge
+  private:
+    driver: bridge
+    internal: true
+
+---
+# ================================
+# Example 7: Host Network (Linux only)
+# ================================
+version: "3.8"
+
+services:
+  app:
+    image: myapp:latest
+    network_mode: "host"
+    # Uses host's network stack directly
+    # No port mapping needed

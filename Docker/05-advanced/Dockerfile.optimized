@@ -1,0 +1,351 @@
+# Advanced Optimized Dockerfile Examples
+
+# ================================
+# Example 1: Production-Ready Node.js with BuildKit
+# ================================
+# syntax=docker/dockerfile:1.4
+
+FROM node:18-alpine AS deps
+WORKDIR /app
+COPY --link package*.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --only=production && \
+    npm cache clean --force
+
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY --link package*.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci && \
+    npm cache clean --force
+COPY --link . .
+RUN npm run build && \
+    npm run test
+
+FROM node:18-alpine AS runner
+RUN apk add --no-cache dumb-init
+
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+
+COPY --from=deps --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --chown=nodejs:nodejs package*.json ./
+
+USER nodejs
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
+  CMD node healthcheck.js || exit 1
+
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/server.js"]
+
+
+# ================================
+# Example 2: Minimal Go Binary
+# ================================
+FROM golang:1.21-alpine AS builder
+
+WORKDIR /app
+
+COPY go.* ./
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download
+
+COPY . .
+
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -ldflags="-w -s" -a -installsuffix cgo -o main .
+
+FROM scratch
+
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /app/main /main
+
+USER 65534:65534
+
+EXPOSE 8080
+
+ENTRYPOINT ["/main"]
+
+
+# ================================
+# Example 3: Python with Security Best Practices
+# ================================
+FROM python:3.11-slim AS builder
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN addgroup --system --gid 1001 appgroup && \
+    adduser --system --uid 1001 --gid 1001 appuser
+
+COPY --from=builder /app/wheels /wheels
+COPY --from=builder /app/requirements.txt .
+
+RUN pip install --no-cache /wheels/* && \
+    rm -rf /wheels
+
+COPY --chown=appuser:appgroup . .
+
+USER appuser
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD python healthcheck.py || exit 1
+
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "app:app"]
+
+
+# ================================
+# Example 4: Multi-Architecture Build
+# ================================
+FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS builder
+
+ARG TARGETOS
+ARG TARGETARCH
+
+WORKDIR /app
+
+COPY go.* ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
+    go build -o main .
+
+FROM alpine:latest
+
+COPY --from=builder /app/main /main
+
+CMD ["/main"]
+
+
+# ================================
+# Example 5: With BuildKit Secrets
+# ================================
+# syntax=docker/dockerfile:1.4
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+# Using BuildKit secret (never cached)
+RUN --mount=type=secret,id=npmrc,target=/root/.npmrc \
+    npm ci --only=production
+
+COPY . .
+
+CMD ["node", "server.js"]
+
+# Build with:
+# docker build --secret id=npmrc,src=$HOME/.npmrc -t myapp .
+
+
+# ================================
+# Example 6: Distroless Image
+# ================================
+FROM golang:1.21 AS builder
+
+WORKDIR /app
+
+COPY go.* ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+
+FROM gcr.io/distroless/static-debian11
+
+COPY --from=builder /app/main /
+
+USER nonroot:nonroot
+
+EXPOSE 8080
+
+ENTRYPOINT ["/main"]
+
+
+# ================================
+# Example 7: Optimized Frontend Build
+# ================================
+FROM node:18-alpine AS deps
+
+WORKDIR /app
+
+COPY package*.json yarn.lock ./
+
+RUN yarn install --frozen-lockfile
+
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+ARG NEXT_PUBLIC_API_URL
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+RUN yarn build
+
+FROM node:18-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+
+CMD ["node", "server.js"]
+
+
+# ================================
+# Example 8: Cache Mount Optimization
+# ================================
+# syntax=docker/dockerfile:1.4
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+# Cache npm packages
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --only=production
+
+# Cache build artifacts
+COPY . .
+
+RUN --mount=type=cache,target=/app/.next/cache \
+    npm run build
+
+CMD ["npm", "start"]
+
+
+# ================================
+# Example 9: Security Scanning in Build
+# ================================
+FROM node:18-alpine AS base
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+
+FROM base AS scanner
+
+RUN apk add --no-cache npm && \
+    npm audit --production --audit-level=high
+
+FROM base AS final
+
+USER node
+
+CMD ["node", "server.js"]
+
+
+# ================================
+# Example 10: Complete Production Build
+# ================================
+# syntax=docker/dockerfile:1.4
+
+ARG NODE_VERSION=18
+
+FROM node:${NODE_VERSION}-alpine AS base
+
+WORKDIR /app
+
+FROM base AS deps
+
+COPY --link package*.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+FROM base AS builder
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY --link . .
+
+ARG BUILD_ENV=production
+ENV NODE_ENV=${BUILD_ENV}
+
+RUN --mount=type=cache,target=/app/.next/cache \
+    npm run build
+
+FROM base AS runner
+
+ENV NODE_ENV=production
+
+RUN apk add --no-cache dumb-init && \
+    addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+WORKDIR /app
+
+COPY --from=builder --chown=nodejs:nodejs /app/public ./public
+COPY --from=builder --chown=nodejs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nodejs:nodejs /app/.next/static ./.next/static
+
+USER nodejs
+
+EXPOSE 3000
+
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "server.js"]
+

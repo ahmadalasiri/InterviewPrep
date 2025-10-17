@@ -1,0 +1,242 @@
+# Docker Compose Volumes Examples
+
+version: "3.8"
+
+services:
+  # ================================
+  # Example 1: Named Volumes
+  # ================================
+  postgres:
+    image: postgres:15
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: secret
+
+volumes:
+  postgres-data:
+    driver: local
+
+---
+# ================================
+# Example 2: Bind Mounts
+# ================================
+version: "3.8"
+
+services:
+  web:
+    image: nginx:alpine
+    volumes:
+      # Bind mount (development)
+      - ./html:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro # Read-only
+
+---
+# ================================
+# Example 3: Anonymous Volumes
+# ================================
+version: "3.8"
+
+services:
+  app:
+    image: node:18
+    volumes:
+      - ./src:/app/src # Bind mount
+      - /app/node_modules # Anonymous volume
+
+---
+# ================================
+# Example 4: Volume Configuration
+# ================================
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/ssd/postgres-data
+
+---
+# ================================
+# Example 5: Sharing Volumes Between Services
+# ================================
+version: "3.8"
+
+services:
+  app:
+    image: myapp:latest
+    volumes:
+      - shared-files:/app/uploads
+
+  worker:
+    image: myworker:latest
+    volumes:
+      - shared-files:/data/uploads
+
+volumes:
+  shared-files:
+
+---
+# ================================
+# Example 6: External Volumes
+# ================================
+version: "3.8"
+
+services:
+  app:
+    image: myapp:latest
+    volumes:
+      - existing-volume:/data
+
+volumes:
+  existing-volume:
+    external: true
+    name: my-pre-existing-volume
+
+---
+# ================================
+# Example 7: Multiple Volume Types
+# ================================
+version: "3.8"
+
+services:
+  app:
+    image: myapp:latest
+    volumes:
+      # Named volume (production data)
+      - app-data:/app/data
+
+      # Bind mount (configuration)
+      - ./config:/app/config:ro
+
+      # Bind mount (development)
+      - ./src:/app/src
+
+      # Anonymous volume (node_modules)
+      - /app/node_modules
+
+      # tmpfs (temporary files)
+    tmpfs:
+      - /tmp
+      - /app/cache
+
+volumes:
+  app-data:
+
+---
+# ================================
+# Example 8: NFS Volume
+# ================================
+version: "3.8"
+
+services:
+  app:
+    image: myapp:latest
+    volumes:
+      - nfs-data:/app/uploads
+
+volumes:
+  nfs-data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=192.168.1.100,rw
+      device: ":/path/to/shared"
+
+---
+# ================================
+# Example 9: Complete Production Setup
+# ================================
+version: "3.8"
+
+services:
+  app:
+    image: myapp:latest
+    volumes:
+      # Application data
+      - app-uploads:/app/uploads
+      - app-logs:/app/logs
+
+      # Configuration (read-only)
+      - ./config/app.conf:/app/config/app.conf:ro
+
+      # SSL certificates (read-only)
+      - ./certs:/app/certs:ro
+
+  database:
+    image: postgres:15
+    volumes:
+      # Database data
+      - postgres-data:/var/lib/postgresql/data
+
+      # Init scripts (read-only)
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    environment:
+      POSTGRES_PASSWORD: secret
+
+  redis:
+    image: redis:alpine
+    command: redis-server --appendonly yes
+    volumes:
+      # Redis persistence
+      - redis-data:/data
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Static files
+      - static-files:/usr/share/nginx/html:ro
+
+      # Configuration
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+
+      # SSL certificates
+      - ./ssl:/etc/nginx/ssl:ro
+
+      # Logs
+      - nginx-logs:/var/log/nginx
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  app-uploads:
+    driver: local
+  app-logs:
+    driver: local
+  static-files:
+    driver: local
+  nginx-logs:
+    driver: local
+
+---
+# ================================
+# Example 10: Volume Labels
+# ================================
+version: "3.8"
+
+services:
+  app:
+    image: myapp:latest
+    volumes:
+      - app-data:/data
+
+volumes:
+  app-data:
+    driver: local
+    labels:
+      com.example.description: "Application data volume"
+      com.example.environment: "production"
+      com.example.backup: "daily"

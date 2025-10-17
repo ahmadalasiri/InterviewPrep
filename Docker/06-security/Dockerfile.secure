@@ -1,0 +1,419 @@
+# Docker Security Best Practices - Dockerfile Examples
+
+# ================================
+# Example 1: Secure Node.js Application
+# ================================
+FROM node:18.17.0-alpine3.18 AS builder
+
+# Set environment
+ENV NODE_ENV=production
+
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm ci --only=production && \
+    npm cache clean --force
+
+# Copy source
+COPY . .
+
+# Build
+RUN npm run build
+
+# Production stage
+FROM node:18.17.0-alpine3.18
+
+# Security: Install dumb-init
+RUN apk add --no-cache dumb-init
+
+# Security: Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 -G nodejs
+
+WORKDIR /app
+
+# Copy with correct ownership
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --chown=nodejs:nodejs package*.json ./
+
+# Security: Switch to non-root user
+USER nodejs
+
+# Security: Run as read-only (will need writable volumes)
+# docker run --read-only --tmpfs /tmp myapp
+
+# Environment
+ENV NODE_ENV=production \
+    NODE_OPTIONS="--max-old-space-size=2048"
+
+# Expose port (non-privileged)
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
+  CMD node healthcheck.js || exit 1
+
+# Metadata
+LABEL maintainer="security@example.com" \
+      version="1.0.0" \
+      security.scan="passed" \
+      security.compliance="cis-docker"
+
+# Start with dumb-init for proper signal handling
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/server.js"]
+
+
+# ================================
+# Example 2: Minimal Python Application
+# ================================
+FROM python:3.11.5-slim-bullseye AS builder
+
+# Security: Set Python env vars
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages
+COPY requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+# Production stage
+FROM python:3.11.5-slim-bullseye
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Security: Create non-root user
+RUN groupadd --gid 1001 appgroup && \
+    useradd --uid 1001 --gid 1001 --create-home appuser
+
+# Install wheels
+COPY --from=builder /app/wheels /wheels
+COPY --from=builder /app/requirements.txt .
+
+RUN pip install --no-cache /wheels/* && \
+    rm -rf /wheels
+
+# Copy application
+COPY --chown=appuser:appgroup . .
+
+# Security: Remove unnecessary files
+RUN find /app -type d -name __pycache__ -exec rm -r {} + && \
+    find /app -type f -name '*.pyc' -delete && \
+    find /app -type f -name '*.pyo' -delete
+
+# Security: Switch to non-root user
+USER appuser
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD python healthcheck.py || exit 1
+
+# Run application
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "app:app"]
+
+
+# ================================
+# Example 3: Go Application with Minimal Base
+# ================================
+FROM golang:1.21.3-alpine3.18 AS builder
+
+WORKDIR /app
+
+# Security: Compile statically
+ENV CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
+
+COPY go.* ./
+RUN go mod download && go mod verify
+
+COPY . .
+
+# Build with security flags
+RUN go build \
+    -ldflags="-w -s -X main.version=1.0.0" \
+    -trimpath \
+    -o main .
+
+# Minimal base (distroless or scratch)
+FROM gcr.io/distroless/static-debian11:nonroot
+
+WORKDIR /
+
+# Copy binary
+COPY --from=builder /app/main /main
+
+# Already runs as nonroot user (65532:65532)
+USER nonroot:nonroot
+
+EXPOSE 8080
+
+# Health check (if distroless/base)
+# HEALTHCHECK --interval=30s --timeout=3s \
+#   CMD ["/main", "healthcheck"]
+
+ENTRYPOINT ["/main"]
+
+
+# ================================
+# Example 4: Security Scanning Integration
+# ================================
+FROM node:18-alpine AS base
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+
+# Security scan stage
+FROM base AS security-scan
+
+# Install security tools
+RUN apk add --no-cache npm && \
+    npm install -g npm-audit-html snyk
+
+# Run security scans
+RUN npm audit --production --audit-level=high || true && \
+    npm audit --production --json > audit.json || true
+
+# Production stage
+FROM base AS production
+
+# Security: Non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+USER nodejs
+
+CMD ["node", "server.js"]
+
+
+# ================================
+# Example 5: Secrets Management
+# ================================
+# syntax=docker/dockerfile:1.4
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Security: Never include secrets in image
+# ❌ Bad: ENV API_KEY=secret123
+# ❌ Bad: COPY .env .
+
+# ✅ Good: Use BuildKit secrets
+COPY package*.json ./
+
+RUN --mount=type=secret,id=npmrc,target=/root/.npmrc \
+    npm ci --only=production && \
+    npm cache clean --force
+
+COPY . .
+
+# Security: Remove any accidentally copied secrets
+RUN find /app -name ".env*" -type f -delete && \
+    find /app -name "*.key" -type f -delete && \
+    find /app -name "*.pem" -type f -delete
+
+USER node
+
+CMD ["node", "server.js"]
+
+
+# ================================
+# Example 6: Multi-layer Security
+# ================================
+FROM alpine:3.18 AS base
+
+# Security: Update base packages
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache ca-certificates && \
+    rm -rf /var/cache/apk/*
+
+FROM golang:1.21-alpine AS builder
+
+WORKDIR /app
+
+COPY go.* ./
+RUN go mod download
+
+COPY . .
+
+# Security: Compile with security flags
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -ldflags="-w -s -extldflags '-static'" \
+    -tags netgo -installsuffix netgo \
+    -o main .
+
+# Run security scan on binary
+RUN apk add --no-cache file && \
+    file main && \
+    ! ldd main 2>&1 | grep -q "not a dynamic executable"
+
+FROM base
+
+# Security: Create non-root user
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -S appuser -u 1001 -G appgroup
+
+WORKDIR /app
+
+# Copy binary with correct ownership
+COPY --from=builder --chown=appuser:appgroup /app/main .
+
+# Security: Make binary immutable
+RUN chmod 500 main
+
+USER appuser
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD /app/main healthcheck || exit 1
+
+CMD ["./main"]
+
+
+# ================================
+# Example 7: Vulnerability Scanning in CI/CD
+# ================================
+FROM node:18-alpine AS base
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+
+# Scan stage (runs in CI)
+FROM base AS scan
+
+RUN apk add --no-cache curl
+
+# Install Trivy
+RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+# Scan filesystem
+RUN trivy fs --severity HIGH,CRITICAL --no-progress /app
+
+# Production stage
+FROM base AS production
+
+RUN adduser -D -u 1001 nodeuser
+
+USER nodeuser
+
+CMD ["node", "server.js"]
+
+
+# ================================
+# Example 8: Complete Security Hardened
+# ================================
+# syntax=docker/dockerfile:1.4
+
+FROM node:18.17.0-alpine3.18 AS builder
+
+WORKDIR /app
+
+# Security: Verify checksums
+COPY package*.json ./
+
+RUN npm ci --only=production && \
+    npm cache clean --force && \
+    npm audit --production --audit-level=high
+
+COPY . .
+
+RUN npm run build
+
+FROM node:18.17.0-alpine3.18
+
+# Security: Update packages
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache \
+    dumb-init \
+    ca-certificates \
+    && rm -rf /var/cache/apk/*
+
+# Security: Create non-root user with minimal privileges
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 -G nodejs && \
+    mkdir -p /app /tmp /home/nodejs && \
+    chown -R nodejs:nodejs /app /tmp /home/nodejs
+
+WORKDIR /app
+
+# Security: Copy with correct ownership
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --chown=nodejs:nodejs package*.json ./
+
+# Security: Remove unnecessary files
+RUN find /app -type f -name "*.md" -delete && \
+    find /app -type f -name "*.map" -delete && \
+    find /app -type d -name "test" -exec rm -rf {} + || true && \
+    find /app -type d -name "tests" -exec rm -rf {} + || true
+
+# Security: Set correct permissions
+RUN chmod -R 500 /app/dist && \
+    chmod -R 400 /app/node_modules
+
+# Security: Switch to non-root user
+USER nodejs
+
+# Security: Use non-privileged port
+EXPOSE 3000
+
+# Environment
+ENV NODE_ENV=production \
+    NODE_OPTIONS="--max-old-space-size=2048" \
+    NPM_CONFIG_LOGLEVEL=error
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD node healthcheck.js || exit 1
+
+# Metadata
+LABEL org.opencontainers.image.title="MyApp" \
+      org.opencontainers.image.description="Secure Node.js Application" \
+      org.opencontainers.image.version="1.0.0" \
+      org.opencontainers.image.vendor="MyCompany" \
+      security.scan="trivy" \
+      security.baseline="cis-docker-benchmark"
+
+# Security: Use dumb-init
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/server.js"]
+
+# To run with additional security:
+# docker run \
+#   --read-only \
+#   --tmpfs /tmp \
+#   --cap-drop=ALL \
+#   --security-opt=no-new-privileges:true \
+#   --user 1001:1001 \
+#   myapp:latest
+
