@@ -353,3 +353,7 @@ npm run build
 Remember: Demonstrate not just technical knowledge, but also understanding of software architecture, design patterns, testing, and real-world problem-solving. Show your ability to build scalable, maintainable applications with NestJS.
 
 
+
+
+
+
