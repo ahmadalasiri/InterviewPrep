@@ -528,5 +528,522 @@ class WorkerPool {
 
 ---
 
-These advanced concepts are crucial for senior Node.js positions. Practice implementing them!
+### Q11: What is the difference between Worker Threads Module and Cluster Module?
 
+**Answer:**
+
+Both **Worker Threads** and **Cluster** modules enable parallel processing in Node.js, but they serve different purposes and work in fundamentally different ways.
+
+**Key Differences:**
+
+| Feature            | Worker Threads                   | Cluster Module               |
+| ------------------ | -------------------------------- | ---------------------------- |
+| **Purpose**        | CPU-intensive tasks              | Load balancing across CPUs   |
+| **Memory**         | Shared memory (with limitations) | Separate memory space        |
+| **Process/Thread** | Threads within same process      | Separate processes           |
+| **Communication**  | Message passing (fast)           | IPC (slower)                 |
+| **Port Sharing**   | No                               | Yes (all workers share port) |
+| **Overhead**       | Low                              | Higher                       |
+| **Use Case**       | Heavy computation                | HTTP servers, scaling apps   |
+| **Isolation**      | Less isolated                    | Fully isolated               |
+
+**Worker Threads Module:**
+
+```javascript
+// main.js
+const { Worker } = require("worker_threads");
+
+function runWorker(workerData) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker("./worker.js", { workerData });
+
+    worker.on("message", resolve);
+    worker.on("error", reject);
+    worker.on("exit", (code) => {
+      if (code !== 0) {
+        reject(new Error(`Worker stopped with exit code ${code}`));
+      }
+    });
+  });
+}
+
+// CPU-intensive task
+async function fibonacci(n) {
+  const result = await runWorker(n);
+  console.log(`Fibonacci(${n}) = ${result}`);
+}
+
+// Run multiple workers in parallel
+Promise.all([runWorker(40), runWorker(41), runWorker(42), runWorker(43)]).then(
+  (results) => {
+    console.log("All results:", results);
+  }
+);
+
+// worker.js
+const { parentPort, workerData } = require("worker_threads");
+
+function fibonacci(n) {
+  if (n < 2) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+const result = fibonacci(workerData);
+parentPort.postMessage(result);
+```
+
+**Cluster Module:**
+
+```javascript
+// cluster-server.js
+const cluster = require("cluster");
+const http = require("http");
+const numCPUs = require("os").cpus().length;
+
+if (cluster.isMaster) {
+  console.log(`Master ${process.pid} is running`);
+
+  // Fork workers for each CPU
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  // Handle worker exit
+  cluster.on("exit", (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died`);
+    console.log("Starting a new worker...");
+    cluster.fork(); // Replace dead worker
+  });
+
+  // Listen for worker messages
+  cluster.on("message", (worker, message) => {
+    console.log(`Message from worker ${worker.id}:`, message);
+  });
+} else {
+  // Workers share the same TCP connection
+  const server = http.createServer((req, res) => {
+    // Simulate some work
+    let sum = 0;
+    for (let i = 0; i < 1000000; i++) {
+      sum += i;
+    }
+
+    res.writeHead(200);
+    res.end(`Worker ${process.pid} handled request\n`);
+  });
+
+  server.listen(8000);
+  console.log(`Worker ${process.pid} started`);
+
+  // Send message to master
+  process.send({ workerId: cluster.worker.id, status: "ready" });
+}
+```
+
+**Shared Memory with Worker Threads:**
+
+```javascript
+const { Worker } = require("worker_threads");
+const { SharedArrayBuffer } = require("worker_threads");
+
+// Main thread
+const sharedBuffer = new SharedArrayBuffer(4);
+const sharedArray = new Int32Array(sharedBuffer);
+
+const worker = new Worker(
+  `
+  const { parentPort, workerData } = require('worker_threads');
+  const sharedArray = new Int32Array(workerData.sharedBuffer);
+  
+  // Modify shared memory
+  sharedArray[0] = 42;
+  
+  parentPort.postMessage('done');
+`,
+  {
+    eval: true,
+    workerData: { sharedBuffer },
+  }
+);
+
+worker.on("message", () => {
+  console.log("Shared value:", sharedArray[0]); // 42
+});
+```
+
+**When to Use Worker Threads:**
+
+**Use Worker Threads for:**
+
+1. **CPU-Intensive Computations:**
+
+```javascript
+const { Worker } = require("worker_threads");
+
+// Image processing
+async function processImage(imageData) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker("./image-processor.js", {
+      workerData: imageData,
+    });
+
+    worker.on("message", resolve);
+    worker.on("error", reject);
+  });
+}
+
+// Data encryption/decryption
+async function encryptData(data) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker("./crypto-worker.js", {
+      workerData: { action: "encrypt", data },
+    });
+
+    worker.on("message", resolve);
+    worker.on("error", reject);
+  });
+}
+
+// Video encoding
+async function encodeVideo(videoPath) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker("./video-encoder.js", {
+      workerData: videoPath,
+    });
+
+    worker.on("message", resolve);
+    worker.on("error", reject);
+  });
+}
+```
+
+2. **Heavy Calculations:**
+
+```javascript
+// worker-pool.js
+const { Worker } = require("worker_threads");
+
+class WorkerPool {
+  constructor(workerScript, poolSize = 4) {
+    this.workerScript = workerScript;
+    this.poolSize = poolSize;
+    this.workers = [];
+    this.queue = [];
+
+    for (let i = 0; i < poolSize; i++) {
+      this.addWorker();
+    }
+  }
+
+  addWorker() {
+    const worker = new Worker(this.workerScript);
+
+    worker.on("message", (result) => {
+      // Worker finished task
+      if (this.queue.length > 0) {
+        const { data, resolve, reject } = this.queue.shift();
+        this.runTask(worker, data, resolve, reject);
+      } else {
+        worker.available = true;
+      }
+    });
+
+    worker.available = true;
+    this.workers.push(worker);
+  }
+
+  async execute(data) {
+    return new Promise((resolve, reject) => {
+      const availableWorker = this.workers.find((w) => w.available);
+
+      if (availableWorker) {
+        this.runTask(availableWorker, data, resolve, reject);
+      } else {
+        this.queue.push({ data, resolve, reject });
+      }
+    });
+  }
+
+  runTask(worker, data, resolve, reject) {
+    worker.available = false;
+
+    worker.once("message", resolve);
+    worker.once("error", reject);
+    worker.postMessage(data);
+  }
+
+  destroy() {
+    this.workers.forEach((worker) => worker.terminate());
+  }
+}
+
+// Usage
+const pool = new WorkerPool("./calculation-worker.js", 4);
+
+async function processLargeDataset(items) {
+  const results = await Promise.all(items.map((item) => pool.execute(item)));
+  return results;
+}
+```
+
+**When to Use Cluster:**
+
+**Use Cluster for:**
+
+1. **HTTP Server Scaling:**
+
+```javascript
+const cluster = require("cluster");
+const express = require("express");
+const numCPUs = require("os").cpus().length;
+
+if (cluster.isMaster) {
+  console.log(`Master ${process.pid} starting...`);
+
+  // Fork workers
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  // Track worker restarts
+  let restarts = {};
+
+  cluster.on("exit", (worker, code, signal) => {
+    console.log(`Worker ${worker.process.pid} died`);
+
+    // Limit restarts to prevent crash loops
+    const now = Date.now();
+    if (!restarts[worker.id]) {
+      restarts[worker.id] = [];
+    }
+
+    restarts[worker.id].push(now);
+    restarts[worker.id] = restarts[worker.id].filter(
+      (time) => now - time < 60000 // Last minute
+    );
+
+    if (restarts[worker.id].length < 5) {
+      console.log("Starting new worker...");
+      cluster.fork();
+    } else {
+      console.error("Worker crashing too frequently, not restarting");
+    }
+  });
+} else {
+  const app = express();
+
+  app.get("/", (req, res) => {
+    res.send(`Worker ${process.pid} handled request`);
+  });
+
+  app.get("/heavy", (req, res) => {
+    // Simulate CPU work
+    const start = Date.now();
+    while (Date.now() - start < 5000) {
+      // Block for 5 seconds
+    }
+    res.send("Done");
+  });
+
+  app.listen(3000, () => {
+    console.log(`Worker ${process.pid} listening on port 3000`);
+  });
+}
+```
+
+2. **Load Balancing:**
+
+```javascript
+const cluster = require("cluster");
+const http = require("http");
+
+if (cluster.isMaster) {
+  const workers = [];
+
+  // Create workers
+  for (let i = 0; i < 4; i++) {
+    const worker = cluster.fork();
+    workers.push(worker);
+  }
+
+  // Monitor worker health
+  setInterval(() => {
+    workers.forEach((worker) => {
+      worker.send({ cmd: "ping" });
+    });
+  }, 5000);
+
+  // Handle worker messages
+  cluster.on("message", (worker, message) => {
+    if (message.cmd === "pong") {
+      console.log(`Worker ${worker.id} is healthy`);
+    }
+    if (message.cmd === "stats") {
+      console.log(`Worker ${worker.id} stats:`, message.data);
+    }
+  });
+} else {
+  let requestCount = 0;
+
+  const server = http.createServer((req, res) => {
+    requestCount++;
+    res.end(`Worker ${cluster.worker.id} - Request ${requestCount}`);
+  });
+
+  server.listen(3000);
+
+  // Respond to health checks
+  process.on("message", (message) => {
+    if (message.cmd === "ping") {
+      process.send({ cmd: "pong" });
+    }
+  });
+
+  // Send stats periodically
+  setInterval(() => {
+    process.send({
+      cmd: "stats",
+      data: {
+        requests: requestCount,
+        memory: process.memoryUsage(),
+        uptime: process.uptime(),
+      },
+    });
+  }, 10000);
+}
+```
+
+**Combining Both:**
+
+```javascript
+const cluster = require("cluster");
+const express = require("express");
+const { Worker } = require("worker_threads");
+const numCPUs = require("os").cpus().length;
+
+if (cluster.isMaster) {
+  console.log(`Master ${process.pid} is running`);
+
+  // Fork cluster workers (for handling HTTP)
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  cluster.on("exit", (worker) => {
+    console.log(`Worker ${worker.process.pid} died, restarting...`);
+    cluster.fork();
+  });
+} else {
+  const app = express();
+
+  // Handle regular requests with cluster
+  app.get("/", (req, res) => {
+    res.send(`Cluster worker ${process.pid}`);
+  });
+
+  // Handle CPU-intensive tasks with Worker Threads
+  app.post("/process", (req, res) => {
+    const worker = new Worker(
+      `
+      const { parentPort, workerData } = require('worker_threads');
+      
+      // Simulate heavy computation
+      function heavyTask(data) {
+        let result = 0;
+        for (let i = 0; i < 1000000000; i++) {
+          result += Math.sqrt(i);
+        }
+        return result;
+      }
+      
+      const result = heavyTask(workerData);
+      parentPort.postMessage(result);
+    `,
+      {
+        eval: true,
+        workerData: req.body,
+      }
+    );
+
+    worker.on("message", (result) => {
+      res.json({
+        clusterId: cluster.worker.id,
+        clusterPid: process.pid,
+        result,
+      });
+    });
+
+    worker.on("error", (err) => {
+      res.status(500).json({ error: err.message });
+    });
+  });
+
+  app.listen(3000, () => {
+    console.log(`Cluster worker ${process.pid} started`);
+  });
+}
+```
+
+**Performance Comparison:**
+
+```javascript
+// Test: Worker Threads vs Cluster for CPU tasks
+const { Worker } = require("worker_threads");
+
+// Worker Threads - Fast for CPU tasks
+console.time("Worker Threads");
+const workers = [];
+for (let i = 0; i < 4; i++) {
+  workers.push(
+    new Promise((resolve) => {
+      const worker = new Worker(
+        `
+      const { parentPort } = require('worker_threads');
+      let sum = 0;
+      for (let i = 0; i < 1e9; i++) sum += i;
+      parentPort.postMessage(sum);
+    `,
+        { eval: true }
+      );
+      worker.on("message", resolve);
+    })
+  );
+}
+await Promise.all(workers);
+console.timeEnd("Worker Threads"); // ~2-3 seconds
+
+// Cluster - Not ideal for pure CPU tasks
+// (Creates full processes, higher overhead)
+// Better for I/O-bound web servers
+```
+
+**Best Practices:**
+
+**Worker Threads:**
+
+- ✅ Use for CPU-intensive tasks
+- ✅ Implement worker pools for reusability
+- ✅ Limit number of workers to CPU count
+- ✅ Use SharedArrayBuffer for large data sharing
+- ✅ Handle worker errors and exits
+
+**Cluster:**
+
+- ✅ Use for HTTP servers
+- ✅ One worker per CPU core
+- ✅ Implement graceful restart
+- ✅ Use PM2 or similar in production
+- ✅ Monitor worker health
+- ✅ Implement proper IPC communication
+
+**Summary:**
+
+- **Worker Threads**: Lightweight threads within same process, shared memory, fast communication, ideal for CPU-intensive computations
+- **Cluster**: Separate processes, isolated memory, share ports, ideal for scaling HTTP servers and load balancing
+- **Choose Worker Threads** for: Image processing, video encoding, data encryption, heavy calculations
+- **Choose Cluster** for: Web servers, APIs, load balancing, utilizing multiple CPUs for I/O
+- **Use Both** for: High-performance applications that need both scalability (Cluster) and CPU-intensive processing (Worker Threads)
+
+---
+
+These advanced concepts are crucial for senior Node.js positions. Practice implementing them!
