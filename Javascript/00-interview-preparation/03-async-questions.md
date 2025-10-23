@@ -870,5 +870,687 @@ lastValueFrom(observable).then(value => console.log(value)); // 3
 
 ---
 
+### Q10: How do you create an Observable from scratch?
+
+**Answer:**
+
+Creating an **Observable from scratch** uses the Observable constructor and implements the subscription logic.
+
+**Basic Observable Creation:**
+
+```javascript
+import { Observable } from 'rxjs';
+
+// Simple observable
+const myObservable = new Observable((subscriber) => {
+  // Emit values
+  subscriber.next('First value');
+  subscriber.next('Second value');
+  subscriber.next('Third value');
+  
+  // Complete the observable
+  subscriber.complete();
+  
+  // Optional: Return cleanup function
+  return () => {
+    console.log('Cleanup: Observable unsubscribed');
+  };
+});
+
+// Subscribe to the observable
+const subscription = myObservable.subscribe({
+  next: (value) => console.log('Received:', value),
+  complete: () => console.log('Observable completed'),
+  error: (err) => console.error('Error:', err)
+});
+
+// Output:
+// Received: First value
+// Received: Second value
+// Received: Third value
+// Observable completed
+```
+
+**Observable with Async Operations:**
+
+```javascript
+// Simulating async data fetching
+const asyncObservable = new Observable((subscriber) => {
+  console.log('Observable started');
+  
+  // Simulate async operation
+  setTimeout(() => {
+    subscriber.next('Data after 1 second');
+  }, 1000);
+  
+  setTimeout(() => {
+    subscriber.next('Data after 2 seconds');
+  }, 2000);
+  
+  setTimeout(() => {
+    subscriber.next('Data after 3 seconds');
+    subscriber.complete();
+  }, 3000);
+  
+  // Cleanup function
+  return () => {
+    console.log('Cleanup: Timers cleared');
+  };
+});
+
+// Subscribe
+const subscription = asyncObservable.subscribe({
+  next: (data) => console.log(data),
+  complete: () => console.log('Done!')
+});
+
+// Unsubscribe before completion
+setTimeout(() => {
+  subscription.unsubscribe(); // Triggers cleanup
+}, 2500);
+```
+
+**Error Handling in Observables:**
+
+```javascript
+const observableWithError = new Observable((subscriber) => {
+  subscriber.next('Value 1');
+  subscriber.next('Value 2');
+  
+  // Emit an error
+  subscriber.error(new Error('Something went wrong!'));
+  
+  // This won't be emitted after error
+  subscriber.next('Value 3');
+  subscriber.complete();
+});
+
+observableWithError.subscribe({
+  next: (value) => console.log(value),
+  error: (err) => console.error('Error caught:', err.message),
+  complete: () => console.log('Completed')
+});
+
+// Output:
+// Value 1
+// Value 2
+// Error caught: Something went wrong!
+```
+
+**Real-world Examples:**
+
+**1. DOM Event Observable:**
+
+```javascript
+// Convert DOM events to Observable
+function fromEvent(element, eventName) {
+  return new Observable((subscriber) => {
+    const handler = (event) => {
+      subscriber.next(event);
+    };
+    
+    element.addEventListener(eventName, handler);
+    
+    // Cleanup: Remove event listener
+    return () => {
+      element.removeEventListener(eventName, handler);
+    };
+  });
+}
+
+// Usage
+const button = document.getElementById('myButton');
+const clicks$ = fromEvent(button, 'click');
+
+const subscription = clicks$.subscribe({
+  next: (event) => console.log('Button clicked!', event)
+});
+
+// Unsubscribe to stop listening
+// subscription.unsubscribe();
+```
+
+**2. Interval Observable:**
+
+```javascript
+function interval(period) {
+  return new Observable((subscriber) => {
+    let count = 0;
+    
+    const intervalId = setInterval(() => {
+      subscriber.next(count++);
+    }, period);
+    
+    // Cleanup: Clear interval
+    return () => {
+      clearInterval(intervalId);
+      console.log('Interval cleared');
+    };
+  });
+}
+
+// Usage
+const numbers$ = interval(1000);
+
+const subscription = numbers$.subscribe({
+  next: (num) => console.log('Count:', num)
+});
+
+// Stop after 5 seconds
+setTimeout(() => {
+  subscription.unsubscribe();
+}, 5000);
+
+// Output:
+// Count: 0
+// Count: 1
+// Count: 2
+// Count: 3
+// Count: 4
+// Interval cleared
+```
+
+**3. AJAX Observable:**
+
+```javascript
+function ajax(url) {
+  return new Observable((subscriber) => {
+    const xhr = new XMLHttpRequest();
+    
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        subscriber.next(JSON.parse(xhr.responseText));
+        subscriber.complete();
+      } else {
+        subscriber.error(new Error(`HTTP Error: ${xhr.status}`));
+      }
+    };
+    
+    xhr.onerror = () => {
+      subscriber.error(new Error('Network error'));
+    };
+    
+    xhr.open('GET', url);
+    xhr.send();
+    
+    // Cleanup: Abort request if unsubscribed
+    return () => {
+      xhr.abort();
+      console.log('Request aborted');
+    };
+  });
+}
+
+// Usage
+const data$ = ajax('https://api.example.com/data');
+
+const subscription = data$.subscribe({
+  next: (data) => console.log('Data received:', data),
+  error: (err) => console.error('Error:', err.message),
+  complete: () => console.log('Request completed')
+});
+
+// Cancel request if needed
+// subscription.unsubscribe();
+```
+
+**4. WebSocket Observable:**
+
+```javascript
+function websocket(url) {
+  return new Observable((subscriber) => {
+    const socket = new WebSocket(url);
+    
+    socket.onopen = () => {
+      subscriber.next({ type: 'open' });
+    };
+    
+    socket.onmessage = (event) => {
+      subscriber.next({ type: 'message', data: event.data });
+    };
+    
+    socket.onerror = (error) => {
+      subscriber.error(error);
+    };
+    
+    socket.onclose = () => {
+      subscriber.complete();
+    };
+    
+    // Cleanup: Close socket
+    return () => {
+      socket.close();
+      console.log('WebSocket closed');
+    };
+  });
+}
+
+// Usage
+const messages$ = websocket('ws://localhost:8080');
+
+messages$.subscribe({
+  next: (event) => {
+    if (event.type === 'message') {
+      console.log('Received:', event.data);
+    }
+  },
+  error: (err) => console.error('Error:', err),
+  complete: () => console.log('Connection closed')
+});
+```
+
+**5. Custom Timer Observable:**
+
+```javascript
+function timer(delay) {
+  return new Observable((subscriber) => {
+    const timeoutId = setTimeout(() => {
+      subscriber.next(0);
+      subscriber.complete();
+    }, delay);
+    
+    // Cleanup: Clear timeout
+    return () => {
+      clearTimeout(timeoutId);
+      console.log('Timer cancelled');
+    };
+  });
+}
+
+// Usage
+const delayed$ = timer(3000);
+
+delayed$.subscribe({
+  next: (value) => console.log('Timer fired!', value),
+  complete: () => console.log('Timer complete')
+});
+
+// Output after 3 seconds:
+// Timer fired! 0
+// Timer complete
+```
+
+**Important Points:**
+
+1. **Always handle cleanup** - Return a function that cleans up resources
+2. **Don't emit after complete/error** - Once completed or errored, no more emissions
+3. **Handle unsubscription** - Make observables cancellable
+4. **Error handling** - Use `subscriber.error()` for errors
+5. **Complete when done** - Call `subscriber.complete()` to signal completion
+
+**Comparison with Creating Promises:**
+
+```javascript
+// Promise - Eager, executes immediately
+const promise = new Promise((resolve, reject) => {
+  console.log('Promise executor runs immediately');
+  setTimeout(() => resolve('Done'), 1000);
+});
+
+// Observable - Lazy, executes on subscription
+const observable = new Observable((subscriber) => {
+  console.log('Observable executor runs on subscription');
+  setTimeout(() => {
+    subscriber.next('Done');
+    subscriber.complete();
+  }, 1000);
+});
+
+// Promise starts immediately (before then())
+promise.then(value => console.log(value));
+
+// Observable doesn't start until subscribed
+observable.subscribe(value => console.log(value));
+```
+
+---
+
+### Q11: What is the difference between eager and lazy loading?
+
+**Answer:**
+
+**Eager Loading** and **Lazy Loading** are strategies that determine when resources or code are loaded and executed.
+
+**Key Differences:**
+
+| Feature | Eager Loading | Lazy Loading |
+|---------|---------------|--------------|
+| **When Loaded** | Immediately at startup | When needed/requested |
+| **Initial Load Time** | Slower | Faster |
+| **Memory Usage** | Higher (everything loaded) | Lower (only what's needed) |
+| **Complexity** | Simpler | More complex |
+| **Performance** | Better for frequently used code | Better for rarely used code |
+| **Use Case** | Core functionality | Optional features |
+
+**JavaScript Module Loading:**
+
+**Eager Loading (Static Imports):**
+
+```javascript
+// Loaded immediately when script runs
+import React from 'react';
+import lodash from 'lodash';
+import moment from 'moment';
+import charts from 'chart.js';
+
+// All modules loaded even if never used
+console.log('All modules loaded');
+
+function Component() {
+  // lodash available immediately
+  const result = lodash.uniq([1, 2, 2, 3]);
+  return <div>{result}</div>;
+}
+```
+
+**Lazy Loading (Dynamic Imports):**
+
+```javascript
+// Nothing loaded initially
+console.log('Only core modules loaded');
+
+async function Component() {
+  // Load lodash only when this function is called
+  const lodash = await import('lodash');
+  const result = lodash.default.uniq([1, 2, 2, 3]);
+  return result;
+}
+
+// Or with then()
+function loadCharts() {
+  import('chart.js').then(charts => {
+    // Use charts only when needed
+    const chart = new charts.Chart(/* ... */);
+  });
+}
+```
+
+**React Component Lazy Loading:**
+
+```javascript
+// EAGER LOADING
+import Home from './components/Home';
+import About from './components/About';
+import Dashboard from './components/Dashboard';
+import Profile from './components/Profile';
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/profile" element={<Profile />} />
+    </Routes>
+  );
+}
+// All components loaded immediately, even if user never visits those routes
+
+// LAZY LOADING
+import { lazy, Suspense } from 'react';
+
+const Home = lazy(() => import('./components/Home'));
+const About = lazy(() => import('./components/About'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const Profile = lazy(() => import('./components/Profile'));
+
+function App() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+      </Routes>
+    </Suspense>
+  );
+}
+// Each component loaded only when its route is visited
+```
+
+**Image Lazy Loading:**
+
+```javascript
+// EAGER LOADING - All images load immediately
+function Gallery() {
+  return (
+    <div>
+      <img src="image1.jpg" alt="Image 1" />
+      <img src="image2.jpg" alt="Image 2" />
+      <img src="image3.jpg" alt="Image 3" />
+      <img src="image4.jpg" alt="Image 4" />
+      {/* All images loaded even if below the fold */}
+    </div>
+  );
+}
+
+// LAZY LOADING - Images load when visible
+function Gallery() {
+  return (
+    <div>
+      <img src="image1.jpg" alt="Image 1" loading="lazy" />
+      <img src="image2.jpg" alt="Image 2" loading="lazy" />
+      <img src="image3.jpg" alt="Image 3" loading="lazy" />
+      <img src="image4.jpg" alt="Image 4" loading="lazy" />
+      {/* Images loaded only when scrolled into view */}
+    </div>
+  );
+}
+
+// Or with Intersection Observer
+function LazyImage({ src, alt }) {
+  const [imageSrc, setImageSrc] = useState(null);
+  const imgRef = useRef();
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setImageSrc(src); // Load image when visible
+          observer.unobserve(entry.target);
+        }
+      });
+    });
+    
+    observer.observe(imgRef.current);
+    
+    return () => observer.disconnect();
+  }, [src]);
+  
+  return <img ref={imgRef} src={imageSrc} alt={alt} />;
+}
+```
+
+**Data Fetching:**
+
+```javascript
+// EAGER LOADING - Fetch all data immediately
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [friends, setFriends] = useState([]);
+  const [photos, setPhotos] = useState([]);
+  
+  useEffect(() => {
+    // Fetch everything immediately
+    Promise.all([
+      fetch(`/api/users/${userId}`).then(r => r.json()),
+      fetch(`/api/users/${userId}/posts`).then(r => r.json()),
+      fetch(`/api/users/${userId}/friends`).then(r => r.json()),
+      fetch(`/api/users/${userId}/photos`).then(r => r.json())
+    ]).then(([userData, postsData, friendsData, photosData]) => {
+      setUser(userData);
+      setPosts(postsData);
+      setFriends(friendsData);
+      setPhotos(photosData);
+    });
+  }, [userId]);
+  
+  return (
+    <div>
+      <UserInfo user={user} />
+      <PostsList posts={posts} />
+      <FriendsList friends={friends} />
+      <PhotoGallery photos={photos} />
+    </div>
+  );
+}
+
+// LAZY LOADING - Fetch data only when components are viewed
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('info');
+  
+  useEffect(() => {
+    // Only fetch user info initially
+    fetch(`/api/users/${userId}`)
+      .then(r => r.json())
+      .then(setUser);
+  }, [userId]);
+  
+  return (
+    <div>
+      <UserInfo user={user} />
+      <Tabs onChange={setActiveTab}>
+        <Tab name="info">User Info</Tab>
+        <Tab name="posts">
+          {activeTab === 'posts' && <PostsList userId={userId} />}
+        </Tab>
+        <Tab name="friends">
+          {activeTab === 'friends' && <FriendsList userId={userId} />}
+        </Tab>
+        <Tab name="photos">
+          {activeTab === 'photos' && <PhotoGallery userId={userId} />}
+        </Tab>
+      </Tabs>
+    </div>
+  );
+}
+
+// Each component fetches its own data when rendered
+function PostsList({ userId }) {
+  const [posts, setPosts] = useState([]);
+  
+  useEffect(() => {
+    fetch(`/api/users/${userId}/posts`)
+      .then(r => r.json())
+      .then(setPosts);
+  }, [userId]);
+  
+  return <div>{posts.map(post => <Post key={post.id} {...post} />)}</div>;
+}
+```
+
+**Script Loading:**
+
+```javascript
+// EAGER LOADING - Load all scripts upfront
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="jquery.js"></script>
+  <script src="bootstrap.js"></script>
+  <script src="charts.js"></script>
+  <script src="analytics.js"></script>
+  <script src="editor.js"></script>
+  <!-- All scripts loaded even if never used -->
+</head>
+<body>
+  <!-- Content -->
+</body>
+</html>
+
+// LAZY LOADING - Load scripts when needed
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="main.js"></script>
+</head>
+<body>
+  <button id="openEditor">Open Editor</button>
+  
+  <script>
+    document.getElementById('openEditor').addEventListener('click', () => {
+      // Load editor script only when button is clicked
+      const script = document.createElement('script');
+      script.src = 'editor.js';
+      script.onload = () => {
+        initializeEditor();
+      };
+      document.head.appendChild(script);
+    });
+  </script>
+</body>
+</html>
+```
+
+**Webpack Code Splitting:**
+
+```javascript
+// EAGER LOADING - Bundle everything together
+import { heavyLibrary } from './heavy-library';
+import { charts } from './charts';
+import { analytics } from './analytics';
+
+// All code in one bundle
+
+// LAZY LOADING - Split into chunks
+// webpack.config.js
+module.exports = {
+  optimization: {
+    splitChunks: {
+      chunks: 'all'
+    }
+  }
+};
+
+// Dynamic import creates separate chunks
+button.addEventListener('click', async () => {
+  const { heavyLibrary } = await import(/* webpackChunkName: "heavy" */ './heavy-library');
+  heavyLibrary.doSomething();
+});
+```
+
+**When to Use:**
+
+**Use Eager Loading when:**
+- ✅ Resources are small
+- ✅ Resources are critical
+- ✅ Resources are always needed
+- ✅ User experience benefits from immediate availability
+- ✅ Simpler code is preferred
+
+**Use Lazy Loading when:**
+- ✅ Resources are large
+- ✅ Resources are optional
+- ✅ Resources are rarely used
+- ✅ Initial load time is critical
+- ✅ Resources are route-specific
+- ✅ Mobile performance is important
+
+**Performance Impact:**
+
+```javascript
+// Eager Loading
+// Initial bundle: 500KB
+// Time to interactive: 3 seconds
+// Memory usage: High
+// User experience: Slow initial load, fast subsequent interactions
+
+// Lazy Loading
+// Initial bundle: 100KB
+// Time to interactive: 0.8 seconds
+// Memory usage: Low initially, grows as needed
+// User experience: Fast initial load, slight delay on feature access
+```
+
+**Summary:**
+- **Eager Loading**: Load everything upfront - simpler but slower initial load
+- **Lazy Loading**: Load on demand - faster initial load but more complex implementation
+- Choose based on resource size, usage frequency, and performance requirements
+
+---
+
 This covers async programming interview questions. Practice these concepts thoroughly!
 
