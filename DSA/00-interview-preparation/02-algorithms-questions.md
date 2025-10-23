@@ -462,3 +462,7 @@ Terrible: O(n!)
 - Don't get stuck on one approach
 - Know when to move to next problem
 - Partial credit is better than no credit
+
+
+
+

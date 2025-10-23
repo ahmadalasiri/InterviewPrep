@@ -131,3 +131,7 @@ go run 01-arrays-strings/arrays.go
 - **Hard**: 20% - Advanced algorithms and combinations
 
 Focus on understanding patterns rather than memorizing solutions!
+
+
+
+

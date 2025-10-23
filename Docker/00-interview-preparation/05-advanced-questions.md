@@ -1685,3 +1685,7 @@ docker inspect -f '{{json .NetworkSettings}}' container
 **Continue to:** [06. Practical Scenarios →](06-practical-questions.md)
 
 **Return to:** [Interview Preparation Index →](README.md)
+
+
+
+

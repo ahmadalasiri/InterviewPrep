@@ -240,3 +240,7 @@ docker run --rm --entrypoint sh myimage
 docker ps -a
 docker inspect mycontainer | grep -A 10 State
 
+
+
+
+

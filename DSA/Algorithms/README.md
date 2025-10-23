@@ -516,3 +516,7 @@ function greedy(input) {
 ---
 
 **Pro Tip:** Master the patterns, not individual problems. Once you understand the pattern, you can solve hundreds of similar problems!
+
+
+
+

@@ -101,7 +101,6 @@ Topic/
 - ✅ System Design
 - ✅ OOP & Design Patterns
 - ✅ Git & Version Control
-- 🚧 Redis (In Progress)
 - 🚧 Docker (In Progress)
 - 🚧 Algorithms (In Progress)
 
@@ -120,3 +119,6 @@ This is a personal interview preparation repository. Feel free to fork and custo
 **Last Updated**: October 2025
 
 Happy Learning! 🎓
+
+sotware lead
+yoman
