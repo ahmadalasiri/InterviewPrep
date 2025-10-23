@@ -852,5 +852,464 @@ async function processLargeArray(array) {
 
 ---
 
-This covers asynchronous programming in Node.js. Master these concepts for your interview!
+### Q13: What is the difference between Observable and Promise?
 
+**Answer:**
+
+**Observables** and **Promises** are both mechanisms for handling asynchronous operations in Node.js, but they have different characteristics and use cases.
+
+**Key Differences:**
+
+| Feature           | Promise                    | Observable                    |
+| ----------------- | -------------------------- | ----------------------------- |
+| **Execution**     | Eager (starts immediately) | Lazy (starts on subscription) |
+| **Values**        | Emits single value         | Emits multiple values         |
+| **Data Handling** | All data at once (bulk)    | Stream of data (progressive)  |
+| **Cancellation**  | Cannot be cancelled        | Can be unsubscribed           |
+| **Reusability**   | Not reusable (cached)      | Reusable (new execution)      |
+| **Native**        | Built into JavaScript      | Requires library (RxJS)       |
+
+**1. Execution Model:**
+
+```javascript
+// Promise - Eager execution
+console.log("Before promise");
+
+const promise = new Promise((resolve) => {
+  console.log("Promise started immediately");
+  setTimeout(() => resolve("Done"), 1000);
+});
+
+console.log("After promise");
+
+// Output:
+// Before promise
+// Promise started immediately  <-- Runs immediately
+// After promise
+
+// Observable - Lazy execution
+const { Observable } = require("rxjs");
+
+console.log("Before observable");
+
+const observable = new Observable((subscriber) => {
+  console.log("Observable started on subscription");
+  setTimeout(() => {
+    subscriber.next("Done");
+    subscriber.complete();
+  }, 1000);
+});
+
+console.log("After observable");
+// Observable code doesn't run yet
+
+observable.subscribe((value) => console.log(value));
+// Now it runs
+
+// Output:
+// Before observable
+// After observable
+// Observable started on subscription  <-- Runs only when subscribed
+```
+
+**2. Single vs Multiple Values (Bulk vs Stream):**
+
+```javascript
+// Promise - Returns ALL data at once (bulk)
+const fs = require("fs").promises;
+
+async function readEntireFile(filename) {
+  // Reads ENTIRE file into memory at once
+  const data = await fs.readFile(filename, "utf8");
+  console.log(`Read complete file: ${data.length} bytes`);
+  return data; // Returns all data at once
+}
+
+readEntireFile("large-file.txt").then((data) => {
+  // Must wait for entire file before processing
+  processData(data);
+});
+
+// Observable - Streams data progressively
+const { Observable } = require("rxjs");
+const fs = require("fs");
+
+function streamFile(filename) {
+  return new Observable((subscriber) => {
+    const stream = fs.createReadStream(filename, { encoding: "utf8" });
+
+    stream.on("data", (chunk) => {
+      subscriber.next(chunk); // Emit each chunk as it's read
+      console.log(`Received chunk: ${chunk.length} bytes`);
+    });
+
+    stream.on("end", () => subscriber.complete());
+    stream.on("error", (err) => subscriber.error(err));
+
+    // Cleanup on unsubscribe
+    return () => stream.destroy();
+  });
+}
+
+streamFile("large-file.txt").subscribe((chunk) => {
+  // Process each chunk immediately without waiting
+  processChunk(chunk); // Progressive processing
+});
+
+// Promise - Fetch ALL database records at once
+async function getAllUsers() {
+  const users = await db.users.find({}); // Returns ALL users
+  console.log(`Fetched ${users.length} users at once`);
+  return users; // Bulk data
+}
+
+// Observable - Stream database records
+const { from } = require("rxjs");
+
+function streamUsers() {
+  return new Observable((subscriber) => {
+    const cursor = db.users.find({}).cursor();
+
+    cursor.on("data", (user) => {
+      subscriber.next(user); // Emit each user as it's retrieved
+    });
+
+    cursor.on("end", () => subscriber.complete());
+    cursor.on("error", (err) => subscriber.error(err));
+  });
+}
+
+streamUsers().subscribe((user) => {
+  console.log("Processing user:", user.name); // Stream processing
+});
+```
+
+**3. Cancellation:**
+
+```javascript
+// Promise - Cannot cancel
+const promise = fetch("https://api.example.com/data");
+// No way to cancel this
+
+// Observable - Can cancel
+const { ajax } = require("rxjs/ajax");
+
+const request = ajax("https://api.example.com/data");
+const subscription = request.subscribe((response) => {
+  console.log(response);
+});
+
+// Cancel the request
+setTimeout(() => {
+  subscription.unsubscribe();
+  console.log("Request cancelled");
+}, 100);
+```
+
+**4. Real-world Node.js Examples:**
+
+```javascript
+// Promise - File reading (single operation)
+const fs = require("fs").promises;
+
+async function readConfig() {
+  try {
+    const data = await fs.readFile("config.json", "utf8");
+    return JSON.parse(data);
+  } catch (error) {
+    console.error("Error reading config:", error);
+    throw error;
+  }
+}
+
+// Observable - File watching (continuous stream)
+const { Observable } = require("rxjs");
+const fs = require("fs");
+
+function watchFile(filename) {
+  return new Observable((subscriber) => {
+    const watcher = fs.watch(filename, (eventType, filename) => {
+      subscriber.next({ eventType, filename });
+    });
+
+    // Cleanup on unsubscribe
+    return () => {
+      watcher.close();
+      console.log("Stopped watching file");
+    };
+  });
+}
+
+// Usage
+const subscription = watchFile("config.json").subscribe({
+  next: (event) => console.log("File changed:", event),
+  error: (err) => console.error("Error:", err),
+  complete: () => console.log("Watching stopped"),
+});
+
+// Stop watching after 10 seconds
+setTimeout(() => subscription.unsubscribe(), 10000);
+```
+
+**5. HTTP Requests:**
+
+```javascript
+// Promise - Single HTTP request
+const fetch = require("node-fetch");
+
+async function fetchUser(id) {
+  const response = await fetch(`https://api.example.com/users/${id}`);
+  const user = await response.json();
+  return user;
+}
+
+fetchUser(1).then((user) => console.log(user));
+
+// Observable - Polling/Streaming
+const { interval } = require("rxjs");
+const { switchMap } = require("rxjs/operators");
+const { ajax } = require("rxjs/ajax");
+
+// Poll API every 5 seconds
+const polling$ = interval(5000).pipe(
+  switchMap(() => ajax.getJSON("https://api.example.com/data"))
+);
+
+const subscription = polling$.subscribe((data) => {
+  console.log("Polled data:", data);
+});
+
+// Stop polling after 30 seconds
+setTimeout(() => subscription.unsubscribe(), 30000);
+```
+
+**6. Event Emitters to Observable:**
+
+```javascript
+const EventEmitter = require("events");
+const { fromEvent } = require("rxjs");
+const { map, filter } = require("rxjs/operators");
+
+// Event Emitter
+const emitter = new EventEmitter();
+
+// Convert to Observable
+const events$ = fromEvent(emitter, "data").pipe(
+  filter((data) => data.value > 10),
+  map((data) => data.value * 2)
+);
+
+events$.subscribe((value) => console.log("Processed:", value));
+
+// Emit events
+emitter.emit("data", { value: 5 }); // Filtered out
+emitter.emit("data", { value: 15 }); // Logs: Processed: 30
+emitter.emit("data", { value: 20 }); // Logs: Processed: 40
+```
+
+**7. Stream Processing (Bulk vs Progressive):**
+
+```javascript
+// Promise - Load ALL data then process (bulk)
+const fs = require("fs").promises;
+
+async function processLogFile() {
+  // Wait for ENTIRE file to load
+  const content = await fs.readFile("app.log", "utf8");
+  const lines = content.split("\n"); // All lines at once
+
+  console.log(`Processing ${lines.length} lines at once`);
+
+  const errors = lines.filter((line) => line.includes("ERROR"));
+  return errors; // Return all results
+}
+
+processLogFile().then((errors) => {
+  console.log(`Found ${errors.length} errors`); // All at once
+});
+
+// Observable - Stream and process progressively
+const { Observable } = require("rxjs");
+const readline = require("readline");
+const fs = require("fs");
+
+function streamLogFile(filename) {
+  return new Observable((subscriber) => {
+    const rl = readline.createInterface({
+      input: fs.createReadStream(filename),
+      crlfDelay: Infinity,
+    });
+
+    rl.on("line", (line) => {
+      subscriber.next(line); // Emit each line as it's read
+    });
+
+    rl.on("close", () => subscriber.complete());
+    rl.on("error", (err) => subscriber.error(err));
+  });
+}
+
+streamLogFile("app.log")
+  .pipe(filter((line) => line.includes("ERROR")))
+  .subscribe((errorLine) => {
+    // Process each error immediately without waiting for entire file
+    console.log("Found error:", errorLine);
+    sendAlert(errorLine); // Immediate action
+  });
+
+// Promise - Process array once (all data in memory)
+async function processDataBulk(data) {
+  const results = [];
+  for (const item of data) {
+    const result = await processItem(item);
+    results.push(result);
+  }
+  return results; // Returns all results at once
+}
+
+// Observable - Stream processing with backpressure
+const { from } = require("rxjs");
+const { mergeMap, bufferTime } = require("rxjs/operators");
+
+from(largeDataArray)
+  .pipe(
+    mergeMap((item) => processItem(item), 5), // Process 5 items concurrently
+    bufferTime(1000) // Batch results every second (progressive)
+  )
+  .subscribe((batch) => {
+    console.log(`Processed ${batch.length} items in this batch`);
+    // Stream batches progressively
+  });
+
+// Promise - HTTP request returns ALL data at once
+const fetch = require("node-fetch");
+
+async function fetchAllProducts() {
+  const response = await fetch("/api/products?limit=10000");
+  const products = await response.json(); // ALL 10,000 products at once
+  console.log(`Received ${products.length} products`);
+  return products;
+}
+
+// Observable - Server-Sent Events stream data progressively
+const { Observable } = require("rxjs");
+const EventSource = require("eventsource");
+
+function streamProducts() {
+  return new Observable((subscriber) => {
+    const eventSource = new EventSource("/api/products/stream");
+
+    eventSource.onmessage = (event) => {
+      const product = JSON.parse(event.data);
+      subscriber.next(product); // Stream each product
+    };
+
+    eventSource.onerror = (err) => {
+      subscriber.error(err);
+      eventSource.close();
+    };
+
+    return () => eventSource.close();
+  });
+}
+
+streamProducts().subscribe((product) => {
+  // Process each product as it arrives (progressive)
+  displayProduct(product);
+  console.log("Streamed product:", product.name);
+});
+```
+
+**8. Error Handling:**
+
+```javascript
+// Promise - Single error handling
+fetch("/api/data")
+  .then((response) => response.json())
+  .catch((error) => {
+    console.error("Error:", error);
+    return defaultData;
+  });
+
+// Observable - Advanced error handling
+const { ajax } = require("rxjs/ajax");
+const { retry, catchError } = require("rxjs/operators");
+const { of } = require("rxjs");
+
+ajax("/api/data")
+  .pipe(
+    retry(3), // Retry 3 times
+    catchError((error) => {
+      console.error("All retries failed:", error);
+      return of(defaultData); // Return fallback
+    })
+  )
+  .subscribe((data) => console.log(data));
+```
+
+**When to Use in Node.js:**
+
+**Use Promises for:**
+
+- Single async operations
+- File system operations (read, write)
+- Database queries
+- HTTP requests with single response
+- Async/await workflows
+
+**Use Observables for:**
+
+- Event streams (file watching, network events)
+- Real-time data (WebSockets, Server-Sent Events)
+- Polling/periodic operations
+- Complex async workflows with operators
+- Backpressure handling
+- Cancellable long-running operations
+- Stream processing pipelines
+
+**Practical Node.js Example:**
+
+```javascript
+// Express API with both patterns
+const express = require("express");
+const { interval } = require("rxjs");
+const { map } = require("rxjs/operators");
+
+const app = express();
+
+// Promise-based endpoint
+app.get("/user/:id", async (req, res) => {
+  try {
+    const user = await db.findUser(req.params.id);
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Observable-based SSE endpoint
+app.get("/events", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+
+  const subscription = interval(1000)
+    .pipe(map(() => ({ time: new Date(), data: Math.random() })))
+    .subscribe((data) => {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    });
+
+  // Cleanup on client disconnect
+  req.on("close", () => subscription.unsubscribe());
+});
+```
+
+**Summary:**
+
+- **Promise**: Single async value, eager, built-in, great for simple operations
+- **Observable**: Stream of values, lazy, cancellable, powerful operators, ideal for complex async flows
+
+In Node.js, Promises are more common and sufficient for most use cases. Observables (RxJS) are beneficial for complex event-driven applications, real-time systems, and stream processing.
+
+---
+
+This covers asynchronous programming in Node.js. Master these concepts for your interview!

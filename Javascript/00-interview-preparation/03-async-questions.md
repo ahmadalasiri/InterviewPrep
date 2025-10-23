@@ -565,5 +565,310 @@ console.log('5');
 
 ---
 
+### Q9: What is the difference between Observable and Promise?
+
+**Answer:**
+
+**Observables** and **Promises** are both used for handling asynchronous operations, but they have fundamental differences.
+
+**Key Differences:**
+
+| Feature | Promise | Observable |
+|---------|---------|------------|
+| **Execution** | Eager (executes immediately) | Lazy (executes when subscribed) |
+| **Values** | Single value or error | Multiple values over time |
+| **Data Handling** | All data at once (bulk) | Stream of data (progressive) |
+| **Cancellation** | Cannot be cancelled | Can be unsubscribed/cancelled |
+| **Operators** | Limited (then, catch, finally) | Rich set of operators (map, filter, etc.) |
+| **Re-execution** | Not reusable, caches result | Reusable, creates new execution |
+
+**1. Eager vs Lazy Execution:**
+
+```javascript
+// Promise - Executes immediately
+const promise = new Promise((resolve) => {
+  console.log('Promise executor runs immediately');
+  setTimeout(() => resolve('Done'), 1000);
+});
+// Logs "Promise executor runs immediately" right away
+
+console.log('After promise creation');
+// Even without calling .then(), the promise has already started
+
+// Observable - Lazy execution
+import { Observable } from 'rxjs';
+
+const observable = new Observable((subscriber) => {
+  console.log('Observable executor runs only when subscribed');
+  setTimeout(() => {
+    subscriber.next('Done');
+    subscriber.complete();
+  }, 1000);
+});
+
+console.log('After observable creation');
+// Nothing logged yet
+
+observable.subscribe(value => console.log(value));
+// Now logs "Observable executor runs only when subscribed"
+```
+
+**2. Single vs Multiple Values (All Data at Once vs Stream):**
+
+```javascript
+// Promise - Returns ALL data at once (bulk)
+const promise = new Promise((resolve) => {
+  setTimeout(() => {
+    resolve([1, 2, 3, 4, 5]); // Returns entire array at once
+  }, 1000);
+});
+
+promise.then(data => {
+  console.log('Received all data:', data); // [1, 2, 3, 4, 5]
+  // Must wait for ALL data before processing
+});
+
+// Observable - Streams data progressively
+import { Observable } from 'rxjs';
+
+const observable = new Observable((subscriber) => {
+  subscriber.next(1); // Emit first value
+  setTimeout(() => subscriber.next(2), 100);
+  setTimeout(() => subscriber.next(3), 200);
+  setTimeout(() => subscriber.next(4), 300);
+  setTimeout(() => subscriber.next(5), 400);
+  setTimeout(() => subscriber.complete(), 500);
+});
+
+observable.subscribe(value => {
+  console.log('Received:', value); // Processes each value as it arrives
+  // Can process data progressively without waiting for all
+});
+// Logs: 1, 2, 3, 4, 5 (one by one)
+
+// Promise - Single resolution only
+const singlePromise = new Promise((resolve) => {
+  resolve(1);
+  resolve(2); // Ignored
+  resolve(3); // Ignored
+});
+
+singlePromise.then(value => console.log(value)); // Only logs: 1
+```
+
+**3. Cancellation:**
+
+```javascript
+// Promise - Cannot be cancelled
+const promise = fetch('/api/data');
+// No way to cancel this request
+promise.then(data => console.log(data));
+
+// Observable - Can be cancelled
+import { fromFetch } from 'rxjs/fetch';
+
+const observable = fromFetch('/api/data');
+const subscription = observable.subscribe(response => console.log(response));
+
+// Cancel the request
+subscription.unsubscribe();
+```
+
+**4. Operators:**
+
+```javascript
+// Promise - Basic chaining
+fetch('/api/users')
+  .then(response => response.json())
+  .then(users => users.filter(u => u.active))
+  .then(activeUsers => console.log(activeUsers))
+  .catch(error => console.error(error));
+
+// Observable - Rich operators
+import { from } from 'rxjs';
+import { map, filter, catchError } from 'rxjs/operators';
+
+from(fetch('/api/users'))
+  .pipe(
+    map(response => response.json()),
+    filter(user => user.active),
+    map(user => user.name),
+    catchError(error => {
+      console.error(error);
+      return of([]);
+    })
+  )
+  .subscribe(names => console.log(names));
+```
+
+**5. Re-execution:**
+
+```javascript
+// Promise - Caches result
+const promise = fetch('/api/data');
+
+promise.then(data => console.log('First:', data));
+promise.then(data => console.log('Second:', data));
+// Only makes ONE request, result is cached
+
+// Observable - Creates new execution
+import { from } from 'rxjs';
+import { ajax } from 'rxjs/ajax';
+
+const observable = ajax('/api/data');
+
+observable.subscribe(data => console.log('First:', data));
+observable.subscribe(data => console.log('Second:', data));
+// Makes TWO separate requests
+```
+
+**6. Real-world Examples (Bulk vs Stream):**
+
+```javascript
+// Promise - Fetch ALL users at once (bulk data)
+async function fetchAllUsers() {
+  const response = await fetch('/api/users');
+  const users = await response.json(); // Wait for ALL users
+  console.log(`Received ${users.length} users at once`);
+  return users; // Returns complete array
+}
+
+// Must wait for entire response before processing
+fetchAllUsers().then(users => {
+  users.forEach(user => displayUser(user)); // Display all at once
+});
+
+// Observable - Stream users progressively
+import { Observable } from 'rxjs';
+
+function streamUsers() {
+  return new Observable((subscriber) => {
+    fetch('/api/users')
+      .then(response => response.json())
+      .then(users => {
+        // Emit users one by one (progressive)
+        users.forEach((user, index) => {
+          setTimeout(() => {
+            subscriber.next(user); // Stream each user
+          }, index * 100); // Progressive delivery
+        });
+        subscriber.complete();
+      });
+  });
+}
+
+// Process each user as it arrives (stream)
+streamUsers().subscribe(user => {
+  displayUser(user); // Display each user immediately
+  console.log('Streamed user:', user.name);
+});
+
+// Promise - Download entire file at once
+async function downloadFile(url) {
+  const response = await fetch(url);
+  const blob = await response.blob(); // Wait for ENTIRE file
+  console.log('Complete file downloaded:', blob.size, 'bytes');
+  return blob;
+}
+
+// Observable - Stream file download with progress
+import { ajax } from 'rxjs/ajax';
+
+function downloadFileWithProgress(url) {
+  return new Observable((subscriber) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url);
+    
+    // Progressive download updates
+    xhr.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const progress = (event.loaded / event.total) * 100;
+        subscriber.next({ type: 'progress', value: progress });
+      }
+    };
+    
+    xhr.onload = () => {
+      subscriber.next({ type: 'complete', data: xhr.response });
+      subscriber.complete();
+    };
+    
+    xhr.send();
+  });
+}
+
+downloadFileWithProgress('/large-file.zip').subscribe(event => {
+  if (event.type === 'progress') {
+    console.log(`Downloaded: ${event.value.toFixed(2)}%`); // Stream progress
+  } else {
+    console.log('Download complete!');
+  }
+});
+
+// Observable - Search input with debounce (stream of events)
+import { fromEvent } from 'rxjs';
+import { debounceTime, map, distinctUntilChanged } from 'rxjs/operators';
+
+const searchInput = document.getElementById('search');
+const search$ = fromEvent(searchInput, 'input').pipe(
+  map(event => event.target.value),
+  debounceTime(300),
+  distinctUntilChanged()
+);
+
+// Receives search term as user types (stream)
+search$.subscribe(searchTerm => {
+  console.log('Search for:', searchTerm);
+  // Perform search progressively
+});
+```
+
+**7. Converting between Promise and Observable:**
+
+```javascript
+// Promise to Observable
+import { from } from 'rxjs';
+
+const promise = fetch('/api/data');
+const observable = from(promise);
+
+observable.subscribe(
+  data => console.log(data),
+  error => console.error(error)
+);
+
+// Observable to Promise
+import { firstValueFrom, lastValueFrom } from 'rxjs';
+
+const observable = from([1, 2, 3]);
+
+// Get first value
+firstValueFrom(observable).then(value => console.log(value)); // 1
+
+// Get last value
+lastValueFrom(observable).then(value => console.log(value)); // 3
+```
+
+**When to Use:**
+
+**Use Promises when:**
+- Single async operation
+- Simple HTTP requests
+- Working with async/await
+- Browser native support needed
+
+**Use Observables when:**
+- Multiple values over time
+- Cancellable operations
+- Complex async workflows
+- Need powerful operators
+- Event streams
+- WebSocket/SSE connections
+
+**Summary:**
+- **Promise**: Single value, eager, not cancellable, built-in to JavaScript
+- **Observable**: Multiple values, lazy, cancellable, requires library (RxJS)
+
+---
+
 This covers async programming interview questions. Practice these concepts thoroughly!
 
