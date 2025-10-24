@@ -53,28 +53,557 @@ myCar.drive(); // Output: Toyota Camry is driving
 
 **Answer:**
 
-1. **Encapsulation**
+The four fundamental pillars (principles) of Object-Oriented Programming are:
 
-   - Bundling data and methods that operate on that data
-   - Hiding internal state and requiring interaction through methods
-   - Provides data protection and modularity
+---
 
-2. **Inheritance**
+## 1. **Encapsulation**
 
-   - Mechanism to create new classes from existing ones
-   - Promotes code reusability
-   - Creates hierarchical relationships
+**Definition:** Encapsulation is the bundling of data (attributes) and methods (functions) that operate on that data into a single unit (class), while restricting direct access to some of the object's components.
 
-3. **Polymorphism**
+**Key Concepts:**
 
-   - Ability to present the same interface for different data types
-   - Objects can take multiple forms
-   - Enables flexibility and extensibility
+- **Data Hiding**: Internal state is hidden from outside access
+- **Access Modifiers**: Use private, protected, and public to control access
+- **Getters/Setters**: Controlled access to private data
+- **Information Hiding**: Implementation details are hidden from users
 
-4. **Abstraction**
-   - Hiding complex implementation details
-   - Showing only essential features
-   - Reduces complexity
+**Benefits:**
+
+- ✅ Protects data integrity
+- ✅ Prevents unauthorized access
+- ✅ Reduces system complexity
+- ✅ Increases code maintainability
+- ✅ Allows changing implementation without affecting other code
+
+**Example:**
+
+```typescript
+class BankAccount {
+  // Private properties (encapsulated data)
+  private balance: number;
+  private accountNumber: string;
+
+  constructor(accountNumber: string, initialBalance: number) {
+    this.accountNumber = accountNumber;
+    this.balance = initialBalance;
+  }
+
+  // Public method to access private data (getter)
+  public getBalance(): number {
+    return this.balance;
+  }
+
+  // Public method to modify private data with validation
+  public deposit(amount: number): void {
+    if (amount <= 0) {
+      throw new Error("Deposit amount must be positive");
+    }
+    this.balance += amount;
+  }
+
+  public withdraw(amount: number): void {
+    if (amount <= 0) {
+      throw new Error("Withdrawal amount must be positive");
+    }
+    if (amount > this.balance) {
+      throw new Error("Insufficient funds");
+    }
+    this.balance -= amount;
+  }
+
+  // Private helper method (hidden from outside)
+  private logTransaction(type: string, amount: number): void {
+    console.log(`${type}: $${amount} on ${this.accountNumber}`);
+  }
+}
+
+// Usage
+const account = new BankAccount("123456", 1000);
+// account.balance = 5000; // ❌ Error: Cannot access private property
+account.deposit(500); // ✅ Correct way to modify balance
+console.log(account.getBalance()); // 1500
+```
+
+**Real-World Analogy:** Like a car - you can use the steering wheel, pedals, and gear shift (public interface) without knowing the complex engine mechanics (hidden implementation).
+
+---
+
+## 2. **Inheritance**
+
+**Definition:** Inheritance is a mechanism where a new class (derived/child class) inherits properties and behaviors from an existing class (base/parent class), allowing code reuse and establishing hierarchical relationships.
+
+**Key Concepts:**
+
+- **Base/Parent/Super Class**: The class being inherited from
+- **Derived/Child/Sub Class**: The class that inherits
+- **"IS-A" Relationship**: Child class IS-A type of parent class
+- **Method Overriding**: Child can provide specific implementation
+- **Super Keyword**: Access parent class members
+
+**Types:**
+
+- **Single Inheritance**: One parent class
+- **Multiple Inheritance**: Multiple parent classes (not in all languages)
+- **Multilevel Inheritance**: Child inherits from parent, which inherits from grandparent
+- **Hierarchical Inheritance**: Multiple children inherit from one parent
+
+**Benefits:**
+
+- ✅ Promotes code reusability
+- ✅ Establishes relationships between classes
+- ✅ Supports hierarchical classification
+- ✅ Enables method overriding
+- ✅ Reduces code duplication
+
+**Example:**
+
+```typescript
+// Base class (Parent)
+class Animal {
+  protected name: string;
+  protected age: number;
+
+  constructor(name: string, age: number) {
+    this.name = name;
+    this.age = age;
+  }
+
+  public eat(): void {
+    console.log(`${this.name} is eating`);
+  }
+
+  public sleep(): void {
+    console.log(`${this.name} is sleeping`);
+  }
+
+  public makeSound(): void {
+    console.log("Some generic animal sound");
+  }
+}
+
+// Derived class (Child)
+class Dog extends Animal {
+  private breed: string;
+
+  constructor(name: string, age: number, breed: string) {
+    super(name, age); // Call parent constructor
+    this.breed = breed;
+  }
+
+  // Method overriding - specific implementation
+  public makeSound(): void {
+    console.log(`${this.name} barks: Woof! Woof!`);
+  }
+
+  // Additional method specific to Dog
+  public fetch(): void {
+    console.log(`${this.name} is fetching the ball`);
+  }
+}
+
+class Cat extends Animal {
+  private indoor: boolean;
+
+  constructor(name: string, age: number, indoor: boolean) {
+    super(name, age);
+    this.indoor = indoor;
+  }
+
+  // Method overriding
+  public makeSound(): void {
+    console.log(`${this.name} meows: Meow!`);
+  }
+
+  public scratch(): void {
+    console.log(`${this.name} is scratching`);
+  }
+}
+
+// Usage
+const dog = new Dog("Buddy", 3, "Golden Retriever");
+dog.eat(); // Inherited from Animal
+dog.sleep(); // Inherited from Animal
+dog.makeSound(); // Overridden in Dog: "Buddy barks: Woof! Woof!"
+dog.fetch(); // Specific to Dog
+
+const cat = new Cat("Whiskers", 2, true);
+cat.eat(); // Inherited from Animal
+cat.makeSound(); // Overridden in Cat: "Whiskers meows: Meow!"
+cat.scratch(); // Specific to Cat
+```
+
+**Real-World Analogy:** Like biological classification - a Dog IS-A Animal, inheriting general animal characteristics but having specific dog behaviors.
+
+---
+
+## 3. **Polymorphism**
+
+**Definition:** Polymorphism (Greek: "many forms") is the ability of objects of different classes to be treated as objects of a common parent class, and the ability to call the same method on different objects and have each respond in their own way.
+
+**Key Concepts:**
+
+- **Method Overriding** (Runtime Polymorphism): Same method signature, different implementation in subclasses
+- **Method Overloading** (Compile-time Polymorphism): Same method name, different parameters
+- **Interface Implementation**: Different classes implementing the same interface
+- **"One Interface, Multiple Implementations"**
+
+**Types:**
+
+1. **Compile-Time (Static) Polymorphism**: Method overloading
+2. **Runtime (Dynamic) Polymorphism**: Method overriding
+
+**Benefits:**
+
+- ✅ Increases code flexibility and extensibility
+- ✅ Allows writing more generic and reusable code
+- ✅ Enables adding new classes without modifying existing code
+- ✅ Supports loose coupling
+- ✅ Makes code more maintainable
+
+**Example:**
+
+```typescript
+// Interface defining common behavior
+interface Shape {
+  calculateArea(): number;
+  calculatePerimeter(): number;
+  draw(): void;
+}
+
+// Different implementations of the same interface
+class Circle implements Shape {
+  constructor(private radius: number) {}
+
+  calculateArea(): number {
+    return Math.PI * this.radius ** 2;
+  }
+
+  calculatePerimeter(): number {
+    return 2 * Math.PI * this.radius;
+  }
+
+  draw(): void {
+    console.log(`Drawing a circle with radius ${this.radius}`);
+  }
+}
+
+class Rectangle implements Shape {
+  constructor(private width: number, private height: number) {}
+
+  calculateArea(): number {
+    return this.width * this.height;
+  }
+
+  calculatePerimeter(): number {
+    return 2 * (this.width + this.height);
+  }
+
+  draw(): void {
+    console.log(`Drawing a rectangle ${this.width}x${this.height}`);
+  }
+}
+
+class Triangle implements Shape {
+  constructor(
+    private side1: number,
+    private side2: number,
+    private side3: number
+  ) {}
+
+  calculateArea(): number {
+    // Using Heron's formula
+    const s = (this.side1 + this.side2 + this.side3) / 2;
+    return Math.sqrt(
+      s * (s - this.side1) * (s - this.side2) * (s - this.side3)
+    );
+  }
+
+  calculatePerimeter(): number {
+    return this.side1 + this.side2 + this.side3;
+  }
+
+  draw(): void {
+    console.log(`Drawing a triangle`);
+  }
+}
+
+// Polymorphism in action - treating different shapes uniformly
+function processShape(shape: Shape): void {
+  shape.draw();
+  console.log(`Area: ${shape.calculateArea()}`);
+  console.log(`Perimeter: ${shape.calculatePerimeter()}`);
+}
+
+// Same function works with different shape types
+const shapes: Shape[] = [
+  new Circle(5),
+  new Rectangle(4, 6),
+  new Triangle(3, 4, 5),
+];
+
+shapes.forEach((shape) => {
+  processShape(shape);
+  // Each shape responds differently to the same method calls
+  console.log("---");
+});
+
+// Method Overloading Example (Compile-time Polymorphism)
+class Calculator {
+  // Same method name, different parameters
+  add(a: number, b: number): number;
+  add(a: number, b: number, c: number): number;
+  add(a: string, b: string): string;
+
+  add(a: any, b: any, c?: any): any {
+    if (typeof a === "string" && typeof b === "string") {
+      return a + b; // String concatenation
+    }
+    if (c !== undefined) {
+      return a + b + c; // Three numbers
+    }
+    return a + b; // Two numbers
+  }
+}
+
+const calc = new Calculator();
+console.log(calc.add(5, 10)); // 15
+console.log(calc.add(5, 10, 15)); // 30
+console.log(calc.add("Hello", "World")); // HelloWorld
+```
+
+**Real-World Analogy:** Like a universal remote control - the same "power" button works on TV, DVD player, and sound system, but each device responds in its own specific way.
+
+---
+
+## 4. **Abstraction**
+
+**Definition:** Abstraction is the process of hiding complex implementation details and showing only the essential features and functionality to the user. It focuses on WHAT an object does rather than HOW it does it.
+
+**Key Concepts:**
+
+- **Abstract Classes**: Cannot be instantiated, serve as templates
+- **Abstract Methods**: Declared but not implemented in abstract class
+- **Interfaces**: Pure abstraction, only method signatures
+- **Concrete Classes**: Provide actual implementation
+- **Separation of Interface and Implementation**
+
+**Levels:**
+
+- **Low-Level Abstraction**: Close to hardware/implementation
+- **High-Level Abstraction**: Close to user/problem domain
+
+**Benefits:**
+
+- ✅ Reduces complexity by hiding unnecessary details
+- ✅ Focuses on relevant aspects of objects
+- ✅ Improves code organization
+- ✅ Enhances code modularity
+- ✅ Allows changing implementation without affecting users
+- ✅ Supports loose coupling
+
+**Example:**
+
+```typescript
+// Abstract class - cannot be instantiated
+abstract class PaymentProcessor {
+  protected amount: number;
+  protected currency: string;
+
+  constructor(amount: number, currency: string) {
+    this.amount = amount;
+    this.currency = currency;
+  }
+
+  // Abstract methods - must be implemented by subclasses
+  abstract validatePayment(): boolean;
+  abstract processPayment(): Promise<boolean>;
+  abstract refund(): Promise<boolean>;
+
+  // Concrete method - shared by all payment processors
+  public displayReceipt(): void {
+    console.log(`Payment Receipt`);
+    console.log(`Amount: ${this.currency} ${this.amount}`);
+    console.log(`Status: Processed`);
+  }
+
+  // Template method - defines the algorithm structure
+  public async executePayment(): Promise<boolean> {
+    console.log("Starting payment process...");
+
+    if (!this.validatePayment()) {
+      console.log("Payment validation failed");
+      return false;
+    }
+
+    const success = await this.processPayment();
+
+    if (success) {
+      this.displayReceipt();
+    }
+
+    return success;
+  }
+}
+
+// Concrete implementation - Credit Card
+class CreditCardPayment extends PaymentProcessor {
+  private cardNumber: string;
+  private cvv: string;
+
+  constructor(
+    amount: number,
+    currency: string,
+    cardNumber: string,
+    cvv: string
+  ) {
+    super(amount, currency);
+    this.cardNumber = cardNumber;
+    this.cvv = cvv;
+  }
+
+  validatePayment(): boolean {
+    // Specific validation logic for credit cards
+    console.log("Validating credit card...");
+    return this.cardNumber.length === 16 && this.cvv.length === 3;
+  }
+
+  async processPayment(): Promise<boolean> {
+    // Specific processing logic for credit cards
+    console.log("Processing credit card payment...");
+    // Simulate API call
+    return new Promise((resolve) => setTimeout(() => resolve(true), 1000));
+  }
+
+  async refund(): Promise<boolean> {
+    console.log("Processing credit card refund...");
+    return true;
+  }
+}
+
+// Concrete implementation - PayPal
+class PayPalPayment extends PaymentProcessor {
+  private email: string;
+
+  constructor(amount: number, currency: string, email: string) {
+    super(amount, currency);
+    this.email = email;
+  }
+
+  validatePayment(): boolean {
+    // Specific validation logic for PayPal
+    console.log("Validating PayPal account...");
+    return this.email.includes("@");
+  }
+
+  async processPayment(): Promise<boolean> {
+    // Specific processing logic for PayPal
+    console.log("Processing PayPal payment...");
+    return new Promise((resolve) => setTimeout(() => resolve(true), 1000));
+  }
+
+  async refund(): Promise<boolean> {
+    console.log("Processing PayPal refund...");
+    return true;
+  }
+}
+
+// Concrete implementation - Bitcoin
+class BitcoinPayment extends PaymentProcessor {
+  private walletAddress: string;
+
+  constructor(amount: number, walletAddress: string) {
+    super(amount, "BTC");
+    this.walletAddress = walletAddress;
+  }
+
+  validatePayment(): boolean {
+    console.log("Validating Bitcoin wallet...");
+    return this.walletAddress.length > 26;
+  }
+
+  async processPayment(): Promise<boolean> {
+    console.log("Processing Bitcoin payment...");
+    return new Promise((resolve) => setTimeout(() => resolve(true), 2000));
+  }
+
+  async refund(): Promise<boolean> {
+    console.log("Bitcoin refunds require manual processing");
+    return false;
+  }
+}
+
+// Usage - User doesn't need to know implementation details
+async function processCustomerPayment(processor: PaymentProcessor) {
+  // High-level abstraction - user only sees this
+  const success = await processor.executePayment();
+
+  if (success) {
+    console.log("Payment completed successfully!");
+  } else {
+    console.log("Payment failed!");
+  }
+}
+
+// Different payment methods, same interface
+const creditCard = new CreditCardPayment(100, "USD", "1234567890123456", "123");
+const paypal = new PayPalPayment(50, "USD", "user@example.com");
+const bitcoin = new BitcoinPayment(0.005, "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa");
+
+await processCustomerPayment(creditCard);
+await processCustomerPayment(paypal);
+await processCustomerPayment(bitcoin);
+```
+
+**Real-World Analogy:** Like driving a car - you interact with the steering wheel, pedals, and gear shift (abstraction layer) without needing to understand the engine, transmission, and fuel injection system (implementation details).
+
+---
+
+## **Summary Comparison:**
+
+| Pillar            | Focus                              | Question Answered                        | Example                                                 |
+| ----------------- | ---------------------------------- | ---------------------------------------- | ------------------------------------------------------- |
+| **Encapsulation** | Data protection & hiding           | How to protect data?                     | Private variables with public methods                   |
+| **Inheritance**   | Code reuse & relationships         | How to reuse code?                       | Dog extends Animal                                      |
+| **Polymorphism**  | Flexibility & multiple forms       | How to handle different types uniformly? | Different shapes with same interface                    |
+| **Abstraction**   | Simplification & hiding complexity | What is essential?                       | Abstract PaymentProcessor with concrete implementations |
+
+**How They Work Together:**
+
+```typescript
+// Abstraction - defines what payment should do
+abstract class Payment {
+  abstract process(): void;
+}
+
+// Inheritance - reuses payment functionality
+class OnlinePayment extends Payment {
+  // Encapsulation - hides card details
+  private cardNumber: string;
+
+  constructor(cardNumber: string) {
+    super();
+    this.cardNumber = cardNumber;
+  }
+
+  // Polymorphism - specific implementation
+  process(): void {
+    console.log("Processing online payment");
+  }
+}
+
+class CashPayment extends Payment {
+  // Polymorphism - different implementation
+  process(): void {
+    console.log("Processing cash payment");
+  }
+}
+
+// Using all pillars together
+function checkout(payment: Payment) {
+  payment.process(); // Works with any payment type
+}
+```
 
 **Example (TypeScript):**
 
