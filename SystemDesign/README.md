@@ -30,6 +30,7 @@ This repository contains a comprehensive guide to learning System Design with pr
 - [Saga Pattern](03-microservices/saga-pattern.ts) - Distributed transactions
 - [Event Sourcing](03-microservices/event-sourcing.go) - Event-driven architecture
 - [CQRS Pattern](03-microservices/cqrs.ts) - Command Query Responsibility Segregation
+- [Design Microservices Architecture with Patterns & Principles](03-microservices/microservices-design.md) - Comprehensive guide to designing microservices
 
 ### 4. Distributed Systems
 
