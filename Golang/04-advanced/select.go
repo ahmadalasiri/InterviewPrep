@@ -5,6 +5,90 @@ import (
 	"time"
 )
 
+/*
+===========================================
+INTERVIEW QUESTIONS & ANSWERS - Select Statement
+===========================================
+
+Q1: What is the select statement in Go?
+A: Select lets a goroutine wait on multiple channel operations. It blocks until one of
+   its cases can run, then executes that case. If multiple cases are ready, one is
+   chosen at random. It's similar to a switch statement but for channel operations.
+
+Q2: What's the difference between select and switch?
+A: - Select: Works with channel operations only, blocks until a case is ready
+   - Switch: General-purpose control flow, evaluates conditions sequentially
+   Select is specifically designed for concurrent channel communication.
+
+Q3: What does the default case do in a select statement?
+A: The default case makes select non-blocking. If no other case is ready, the default
+   case executes immediately. Use cases:
+   - Non-blocking send: select { case ch <- value: ...; default: ... }
+   - Non-blocking receive: select { case v := <-ch: ...; default: ... }
+   - Polling channel state
+
+Q4: How do you implement a timeout using select?
+A: Use time.After() which returns a channel that sends after a duration:
+   select {
+   case result := <-ch:
+       // Got result
+   case <-time.After(5 * time.Second):
+       // Timeout after 5 seconds
+   }
+   Or use context.WithTimeout for more control.
+
+Q5: What happens when multiple cases in select are ready?
+A: If multiple cases are ready, select chooses one at random (pseudo-randomly).
+   This ensures fairness and prevents starvation. Each execution may choose a different
+   ready case.
+
+Q6: Can you use select without any cases?
+A: Yes, but it blocks forever:
+   select {}
+   This is sometimes used to keep a program running (e.g., servers) but context-based
+   waiting is preferred in modern Go.
+
+Q7: How do you implement graceful shutdown with select?
+A: Combine a quit/shutdown channel with work channels:
+   select {
+   case work := <-workCh:
+       // Process work
+   case <-quitCh:
+       // Cleanup and return
+   }
+   When shutting down, close or send to quitCh to signal all workers.
+
+Q8: What is the fan-in pattern and how does select help?
+A: Fan-in merges multiple input channels into one output channel. Select helps by:
+   select {
+   case v1 := <-ch1: output <- v1
+   case v2 := <-ch2: output <- v2
+   case v3 := <-ch3: output <- v3
+   }
+   Efficiently multiplexes multiple sources without explicit locking.
+
+Q9: How do you disable a case in select?
+A: Set the channel to nil. Operations on nil channels block forever, effectively
+   disabling that case:
+   if closed {
+       ch1 = nil  // This case will never be selected
+   }
+   select {
+   case v := <-ch1: // Won't be selected if ch1 is nil
+   case v := <-ch2:
+   }
+
+Q10: What is rate limiting with select?
+A: Use a ticker to control operation frequency:
+   ticker := time.NewTicker(100 * time.Millisecond)
+   select {
+   case <-ticker.C:
+       // Proceed with rate-limited operation
+   }
+   This ensures operations don't exceed a specified rate, useful for API calls,
+   request handling, etc.
+*/
+
 // Select Statement in Go
 func main() {
 	fmt.Println("=== Select Statement ===")

@@ -5,6 +5,79 @@ import (
 	"time"
 )
 
+/*
+===========================================
+INTERVIEW QUESTIONS & ANSWERS - Channels
+===========================================
+
+Q1: What are channels in Go and why are they important?
+A: Channels are typed conduits that allow you to send and receive values between goroutines.
+   They enable safe communication and synchronization between concurrent goroutines without
+   explicit locks or condition variables. Channels follow the principle: "Don't communicate
+   by sharing memory; share memory by communicating."
+
+Q2: What's the difference between buffered and unbuffered channels?
+A: - Unbuffered channels (make(chan T)): Block until both sender and receiver are ready.
+     Send operation blocks until another goroutine receives.
+   - Buffered channels (make(chan T, capacity)): Have a capacity and only block when full
+     (on send) or empty (on receive). Allow asynchronous communication up to buffer size.
+
+Q3: How do you close a channel and why is it important?
+A: Use the built-in close(ch) function. It's important because:
+   - It signals to receivers that no more values will be sent
+   - Receivers can check if a channel is closed: value, ok := <-ch
+   - Range loops over channels terminate when the channel is closed
+   - Only the sender should close channels, never the receiver
+   - Sending to a closed channel causes a panic
+
+Q4: What is the select statement and when would you use it?
+A: Select lets you wait on multiple channel operations simultaneously. It blocks until one
+   of its cases can proceed, then executes that case. Use cases:
+   - Multiplexing multiple channels
+   - Implementing timeouts (with time.After)
+   - Non-blocking operations (with default case)
+   - Graceful shutdown patterns
+
+Q5: Explain channel directions (send-only, receive-only) and their benefits?
+A: Channel direction syntax:
+   - chan<- T: Send-only channel (can only send values)
+   - <-chan T: Receive-only channel (can only receive values)
+   - chan T: Bidirectional channel
+   Benefits: Type safety, clear intent, prevents misuse (e.g., closing receive-only channels)
+
+Q6: What are common channel patterns in Go?
+A: - Fan-out: Multiple goroutines reading from the same channel
+   - Fan-in: Multiplexing multiple input channels into one
+   - Pipeline: Chain of stages connected by channels
+   - Worker pool: Fixed number of workers processing from a job channel
+   - Publish-Subscribe: Broadcasting to multiple subscribers
+
+Q7: What causes a goroutine leak with channels?
+A: Goroutines leak when they block forever on channel operations:
+   - Sending to a channel that's never read from
+   - Receiving from a channel that's never written to or closed
+   - Forgetting to close channels that are being ranged over
+   Prevention: Use buffered channels, context cancellation, proper cleanup
+
+Q8: How do you implement a timeout for a channel operation?
+A: Use select with time.After:
+   select {
+   case result := <-ch:
+       // Process result
+   case <-time.After(5 * time.Second):
+       // Handle timeout
+   }
+
+Q9: What happens when you range over a channel?
+A: The range loop receives values from the channel until it's closed. If the channel is
+   never closed, the loop will block forever waiting for new values. Always close channels
+   when done sending to prevent goroutine leaks.
+
+Q10: Can you send and receive on a nil channel?
+A: Operations on nil channels always block. This is useful in select statements where you
+   can set a channel to nil to disable a case dynamically.
+*/
+
 // Channels in Go
 func main() {
 	fmt.Println("=== Channels in Go ===")

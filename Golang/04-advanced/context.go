@@ -8,6 +8,78 @@ import (
 	"time"
 )
 
+/*
+===========================================
+INTERVIEW QUESTIONS & ANSWERS - Context
+===========================================
+
+Q1: What is the purpose of context.Context in Go?
+A: Context is used to carry deadlines, cancellation signals, and request-scoped values
+   across API boundaries and between goroutines. It helps manage the lifecycle of
+   long-running operations and enables proper cancellation and timeout handling.
+
+Q2: What are the main types of contexts in Go?
+A: - context.Background(): Root context, never canceled, no deadline
+   - context.TODO(): Placeholder when unsure which context to use
+   - context.WithCancel(parent): Returns context that can be manually canceled
+   - context.WithTimeout(parent, duration): Cancels after a duration
+   - context.WithDeadline(parent, time): Cancels at a specific time
+   - context.WithValue(parent, key, value): Carries request-scoped values
+
+Q3: Why should you always call the cancel function returned by context?
+A: Calling cancel() releases resources associated with the context, such as timers and
+   goroutines. Failing to call cancel can cause resource leaks. Best practice is to
+   defer cancel() immediately after creating a cancellable context.
+
+Q4: When should you use context.Background() vs context.TODO()?
+A: - context.Background(): Use as the root context at the start of requests, in main(),
+     in tests, or when you have a clear starting point.
+   - context.TODO(): Use as a placeholder during refactoring when the proper context
+     isn't yet clear or available.
+
+Q5: What are the best practices for passing context values?
+A: - Use context values sparingly for request-scoped data only
+   - Store: user IDs, auth tokens, request IDs, trace information
+   - Don't store: optional function parameters, application config
+   - Use typed keys (custom types) to avoid collisions
+   - Check for nil and type assert safely when retrieving values
+
+Q6: How do you check if a context has been canceled?
+A: Use the Done() channel and Err() method:
+   select {
+   case <-ctx.Done():
+       // Context canceled
+       err := ctx.Err() // Returns context.Canceled or context.DeadlineExceeded
+   }
+
+Q7: Why should context be the first parameter in functions?
+A: Convention: func DoSomething(ctx context.Context, arg string) error
+   Benefits:
+   - Consistent API design
+   - Clear intent of context propagation
+   - Easy to identify context-aware functions
+   - Facilitates proper cancellation and timeout handling
+
+Q8: Should you store Context in a struct?
+A: No. Context should be passed explicitly as a function parameter, not stored in structs.
+   Contexts are request-scoped and storing them can lead to:
+   - Using wrong context for different requests
+   - Difficulty in testing
+   - Unclear lifecycle management
+
+Q9: What's the difference between ctx.Err() returning context.Canceled vs context.DeadlineExceeded?
+A: - context.Canceled: Context was explicitly canceled via cancel() function
+   - context.DeadlineExceeded: Context's deadline or timeout was reached
+   Both indicate the operation should stop, but provide different reasons.
+
+Q10: How do contexts work in HTTP handlers?
+A: HTTP requests come with a context accessible via r.Context(). This context:
+   - Is canceled when the client disconnects
+   - Carries request-scoped values
+   - Should be passed to database calls, external APIs, etc.
+   - Can be extended with timeout: ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+*/
+
 // Context in Go - Managing Request-Scoped Values, Cancellation, and Deadlines
 func main() {
 	fmt.Println("=== Context in Go ===")

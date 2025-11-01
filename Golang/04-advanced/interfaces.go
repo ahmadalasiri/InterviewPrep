@@ -5,6 +5,91 @@ import (
 	"math"
 )
 
+/*
+===========================================
+INTERVIEW QUESTIONS & ANSWERS - Interfaces
+===========================================
+
+Q1: What is an interface in Go and how is it different from other languages?
+A: An interface in Go is a type that specifies a set of method signatures. Key differences:
+   - Implicit implementation: No explicit "implements" keyword needed
+   - A type satisfies an interface by implementing all its methods
+   - Duck typing: "If it walks like a duck and quacks like a duck, it's a duck"
+   - This allows for flexible, decoupled code design
+
+Q2: What is the empty interface and when would you use it?
+A: The empty interface (interface{} or any in Go 1.18+) can hold values of any type because
+   every type implements zero methods.
+   Use cases:
+   - Generic containers before generics (Go < 1.18)
+   - Working with unknown types (JSON unmarshaling, reflection)
+   - Printf-style functions
+   Caution: Use sparingly as it sacrifices type safety
+
+Q3: What is a type assertion and how do you use it safely?
+A: Type assertion extracts the concrete value from an interface.
+   Syntax:
+   - value := i.(Type)           // Panics if wrong type
+   - value, ok := i.(Type)       // Safe version, ok is false if wrong type
+   Always use the safe version in production code to avoid panics.
+
+Q4: What is a type switch?
+A: A type switch is used to determine the type of an interface value:
+   switch v := i.(type) {
+   case int:
+       // v is int
+   case string:
+       // v is string
+   default:
+       // unknown type
+   }
+   Note: The type keyword is used, not the actual type.
+
+Q5: What are the best practices for designing interfaces?
+A: - Keep interfaces small (single method is ideal)
+   - Define interfaces where they're used, not where types are defined
+   - Accept interfaces, return concrete types
+   - Name single-method interfaces with "-er" suffix (Reader, Writer, Closer)
+   - Compose small interfaces into larger ones when needed
+   - Don't overuse empty interface
+
+Q6: Can you explain interface composition?
+A: Interface composition allows building larger interfaces from smaller ones:
+   type Reader interface { Read([]byte) (int, error) }
+   type Writer interface { Write([]byte) (int, error) }
+   type ReadWriter interface { Reader; Writer }
+   Benefits: Modularity, reusability, single responsibility principle
+
+Q7: What is the difference between value receivers and pointer receivers for interface methods?
+A: - Value receiver: Method can be called on values and pointers
+   - Pointer receiver: Method can only be called on pointers
+   If an interface method has a pointer receiver, only pointer types satisfy that interface.
+   Example: If type T has method with *T receiver, only *T satisfies the interface, not T.
+
+Q8: How are interfaces implemented internally in Go?
+A: Interfaces are represented as a pair (type, value):
+   - For non-empty interface: (type descriptor, value)
+   - For empty interface: (type info, value)
+   An interface is nil only if both type and value are nil.
+   An interface with a nil value but non-nil type is not nil.
+
+Q9: What is the Stringer interface and why is it useful?
+A: Stringer is a built-in interface in the fmt package:
+   type Stringer interface {
+       String() string
+   }
+   Types implementing Stringer control how they're printed by fmt functions.
+   Similar to toString() in other languages.
+
+Q10: Can you have an interface with no methods besides the empty interface?
+A: Yes, you can define custom marker interfaces (interfaces with zero methods) to:
+   - Create semantic meaning (e.g., type assertions)
+   - Document intent
+   - Type-level constraints
+   However, they're essentially equivalent to interface{} functionality-wise.
+   In modern Go, consider using type constraints with generics instead.
+*/
+
 // Interfaces in Go
 func main() {
 	fmt.Println("=== Interfaces in Go ===")

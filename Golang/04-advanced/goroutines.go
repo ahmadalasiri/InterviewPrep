@@ -7,6 +7,93 @@ import (
 	"time"
 )
 
+/*
+===========================================
+INTERVIEW QUESTIONS & ANSWERS - Goroutines
+===========================================
+
+Q1: What is a goroutine and how does it differ from a thread?
+A: A goroutine is a lightweight thread managed by the Go runtime. Differences:
+   - Goroutines: Smaller stack size (starts at 2KB), grow/shrink dynamically
+   - OS Threads: Fixed stack size (usually 1-2MB)
+   - Goroutines are multiplexed onto OS threads by the Go scheduler
+   - Can create millions of goroutines vs thousands of threads
+   - Cheaper to create and destroy
+
+Q2: How do you start a goroutine?
+A: Use the 'go' keyword before a function call:
+   go functionName(args)
+   go func() { /* anonymous function */ }()
+   The goroutine starts immediately and executes concurrently.
+
+Q3: What is a WaitGroup and when would you use it?
+A: sync.WaitGroup is used to wait for a collection of goroutines to finish.
+   Methods:
+   - Add(delta int): Increment counter
+   - Done(): Decrement counter (typically defer wg.Done())
+   - Wait(): Block until counter becomes zero
+   Use when you need to wait for multiple goroutines to complete.
+
+Q4: What is a race condition and how do you prevent it?
+A: A race condition occurs when multiple goroutines access shared data concurrently and
+   at least one modifies it, leading to unpredictable results.
+   Prevention:
+   - Use sync.Mutex for mutual exclusion
+   - Use channels for communication
+   - Use sync.RWMutex for read-heavy workloads
+   - Run with -race flag to detect: go run -race program.go
+
+Q5: What's the difference between sync.Mutex and sync.RWMutex?
+A: - sync.Mutex: Exclusive lock, only one goroutine can hold it
+   - sync.RWMutex: Reader-writer lock
+     * RLock()/RUnlock(): Multiple readers can hold simultaneously
+     * Lock()/Unlock(): Exclusive write lock
+   Use RWMutex when reads vastly outnumber writes for better performance.
+
+Q6: What is a goroutine leak and how do you prevent it?
+A: A goroutine leak occurs when goroutines are created but never terminate, consuming
+   memory and resources. Common causes:
+   - Waiting on a channel that's never sent to/closed
+   - Infinite loops without exit conditions
+   - Forgetting to signal completion
+   Prevention:
+   - Use context for cancellation
+   - Always ensure goroutines have exit paths
+   - Use buffered channels appropriately
+   - Monitor with runtime.NumGoroutine()
+
+Q7: What is sync.Once and when would you use it?
+A: sync.Once ensures a function is executed only once, even if called from multiple
+   goroutines. Use cases:
+   - Singleton initialization
+   - One-time setup/configuration
+   - Lazy initialization of expensive resources
+   Example: var once sync.Once; once.Do(initFunction)
+
+Q8: How does the Go scheduler work?
+A: Go uses an M:N scheduler (M goroutines on N OS threads):
+   - G (Goroutine): User-level lightweight thread
+   - M (Machine): OS thread
+   - P (Processor): Resource required to execute Go code
+   The scheduler multiplexes goroutines onto OS threads, handling blocking, preemption,
+   and work stealing for load balancing.
+
+Q9: What happens when you don't wait for goroutines to finish?
+A: If the main function exits, all goroutines are terminated immediately, regardless of
+   whether they've completed. This can lead to:
+   - Incomplete work
+   - Resource leaks
+   - Data corruption
+   Always ensure proper synchronization (WaitGroup, channels, etc.)
+
+Q10: How can you limit the number of concurrent goroutines?
+A: Several approaches:
+   - Worker pool pattern: Fixed number of workers processing from a job channel
+   - Semaphore pattern: Buffered channel as a counting semaphore
+   - Use third-party libraries like golang.org/x/sync/semaphore
+   Example: semaphore := make(chan struct{}, maxGoroutines)
+*/
+
 // Goroutines in Go
 func main() {
 	fmt.Println("=== Goroutines in Go ===")
