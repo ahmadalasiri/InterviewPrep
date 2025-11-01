@@ -117,6 +117,8 @@ func main() {
 	goroutineBestPracticesDemo()
 }
 
+// basicGoroutineDemo demonstrates starting and running goroutines
+// Shows starting goroutines with named functions and anonymous functions
 func basicGoroutineDemo() {
 	fmt.Println("\n--- Basic Goroutine Usage ---")
 	
@@ -139,10 +141,13 @@ func basicGoroutineDemo() {
 	time.Sleep(100 * time.Millisecond)
 }
 
+// sayHello is a simple function to be run as a goroutine
 func sayHello(name string) {
 	fmt.Printf("Hello from %s!\n", name)
 }
 
+// goroutineWithWaitGroupDemo demonstrates using sync.WaitGroup to wait for goroutines
+// WaitGroup is the standard way to wait for multiple goroutines to complete
 func goroutineWithWaitGroupDemo() {
 	fmt.Println("\n--- Goroutines with WaitGroup ---")
 	
@@ -162,12 +167,16 @@ func goroutineWithWaitGroupDemo() {
 	fmt.Println("All goroutines completed!")
 }
 
+// work simulates a worker that takes different amounts of time
 func work(id int) {
 	fmt.Printf("Worker %d starting\n", id)
 	time.Sleep(time.Duration(id) * 100 * time.Millisecond)
 	fmt.Printf("Worker %d finished\n", id)
 }
 
+// raceConditionDemo demonstrates a race condition (data race)
+// Multiple goroutines accessing shared variable without synchronization
+// Run with 'go run -race' to detect the race condition
 func raceConditionDemo() {
 	fmt.Println("\n--- Race Condition Demo ---")
 	
@@ -190,6 +199,8 @@ func raceConditionDemo() {
 	fmt.Println("Note: Run with 'go run -race' to detect race conditions")
 }
 
+// goroutineWithMutexDemo demonstrates using mutex to prevent race conditions
+// Shows both sync.Mutex and sync.RWMutex usage patterns
 func goroutineWithMutexDemo() {
 	fmt.Println("\n--- Goroutines with Mutex ---")
 	
@@ -244,6 +255,8 @@ func goroutineWithMutexDemo() {
 	rwg.Wait()
 }
 
+// goroutinePoolDemo demonstrates the worker pool pattern
+// Fixed number of workers process jobs from a queue, limiting concurrency
 func goroutinePoolDemo() {
 	fmt.Println("\n--- Goroutine Pool Demo ---")
 	
@@ -270,6 +283,8 @@ func goroutinePoolDemo() {
 	}
 }
 
+// worker is a worker goroutine that processes jobs from the jobs channel
+// It continues until the jobs channel is closed
 func worker(id int, jobs <-chan int, results chan<- int) {
 	for job := range jobs {
 		fmt.Printf("Worker %d processing job %d\n", id, job)
@@ -278,6 +293,8 @@ func worker(id int, jobs <-chan int, results chan<- int) {
 	}
 }
 
+// goroutineBestPracticesDemo demonstrates best practices for goroutine management
+// Shows patterns for cleanup, cancellation, leak prevention, and one-time initialization
 func goroutineBestPracticesDemo() {
 	fmt.Println("\n--- Goroutine Best Practices ---")
 	
@@ -329,6 +346,8 @@ func goroutineBestPracticesDemo() {
 	time.Sleep(100 * time.Millisecond)
 }
 
+// leakyGoroutineDemo shows a potential goroutine leak and how to prevent it
+// Goroutines can leak if they block on channel operations that never complete
 func leakyGoroutineDemo() {
 	fmt.Println("Leaky goroutine example:")
 	ch := make(chan int)
@@ -343,6 +362,8 @@ func leakyGoroutineDemo() {
 	fmt.Println("Prevented goroutine leak")
 }
 
+// properGoroutineDemo shows proper goroutine management with buffered channels
+// Buffered channels prevent goroutines from blocking indefinitely
 func properGoroutineDemo() {
 	fmt.Println("Proper goroutine example:")
 	ch := make(chan int, 1) // Buffered channel

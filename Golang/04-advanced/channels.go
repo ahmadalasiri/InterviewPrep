@@ -101,6 +101,8 @@ func main() {
 	channelBestPracticesDemo()
 }
 
+// basicChannelDemo demonstrates fundamental channel operations
+// Shows creating channels, sending/receiving values, checking closed status, and ranging
 func basicChannelDemo() {
 	fmt.Println("\n--- Basic Channel Operations ---")
 	
@@ -140,6 +142,9 @@ func basicChannelDemo() {
 	}
 }
 
+// bufferedChannelDemo demonstrates the difference between unbuffered and buffered channels
+// Unbuffered channels block until both sender and receiver are ready
+// Buffered channels allow asynchronous sends up to the buffer capacity
 func bufferedChannelDemo() {
 	fmt.Println("\n--- Buffered Channels ---")
 	
@@ -175,6 +180,8 @@ func bufferedChannelDemo() {
 	fmt.Printf("  %d\n", <-buffered)
 }
 
+// channelDirectionsDemo demonstrates send-only and receive-only channel types
+// Channel directions provide type safety and document intent in function signatures
 func channelDirectionsDemo() {
 	fmt.Println("\n--- Channel Directions ---")
 	
@@ -199,22 +206,30 @@ func channelDirectionsDemo() {
 	time.Sleep(100 * time.Millisecond)
 }
 
+// sendData demonstrates a function that accepts a send-only channel
+// The compiler ensures this function can only send, not receive
 func sendData(ch chan<- int) {
 	ch <- 42
 	fmt.Println("Sent data")
 }
 
+// receiveData demonstrates a function that accepts a receive-only channel
+// The compiler ensures this function can only receive, not send
 func receiveData(ch <-chan int) {
 	value := <-ch
 	fmt.Printf("Received: %d\n", value)
 }
 
+// processData demonstrates a function that accepts a bidirectional channel
+// It can both send and receive on the channel
 func processData(ch chan int) {
 	ch <- 100
 	value := <-ch
 	fmt.Printf("Processed: %d\n", value)
 }
 
+// selectStatementDemo demonstrates using select to handle multiple channel operations
+// Select blocks until one of its cases can proceed, enabling timeouts and non-blocking ops
 func selectStatementDemo() {
 	fmt.Println("\n--- Select Statement ---")
 	
@@ -264,6 +279,8 @@ func selectStatementDemo() {
 	}
 }
 
+// channelPatternsDemo showcases common concurrency patterns using channels
+// These patterns solve real-world problems in concurrent programming
 func channelPatternsDemo() {
 	fmt.Println("\n--- Channel Patterns ---")
 	
@@ -280,6 +297,11 @@ func channelPatternsDemo() {
 	workerPoolDemo()
 }
 
+// fanOutDemo demonstrates the Fan-out pattern
+// Fan-out: Distributing work from a single source channel to multiple worker goroutines
+// This pattern is useful when you have a single source of work items that can be
+// processed independently and in parallel by multiple workers.
+// Use case: Image processing, data transformation, parallel computations
 func fanOutDemo() {
 	fmt.Println("Fan-out pattern:")
 	
@@ -303,6 +325,11 @@ func fanOutDemo() {
 	time.Sleep(100 * time.Millisecond)
 }
 
+// fanInDemo demonstrates the Fan-in pattern
+// Fan-in: Multiplexing multiple input channels into a single output channel
+// Multiple producers send data to their own channels, and a single consumer
+// reads from all of them through one combined channel.
+// Use case: Aggregating results from multiple workers, merging log streams
 func fanInDemo() {
 	fmt.Println("Fan-in pattern:")
 	
@@ -333,6 +360,10 @@ func fanInDemo() {
 	}
 }
 
+// fanIn is a helper function that merges two channels into one
+// It uses select to read from both input channels and forwards values to the output channel
+// When a channel closes, it sets it to nil to disable that select case
+// When both channels are closed (nil), it closes the output channel and exits
 func fanIn(ch1, ch2 <-chan int) <-chan int {
 	out := make(chan int)
 	
@@ -363,6 +394,11 @@ func fanIn(ch1, ch2 <-chan int) <-chan int {
 	return out
 }
 
+// pipelineDemo demonstrates the Pipeline pattern
+// Pipeline: A series of stages connected by channels, where each stage is a group
+// of goroutines running the same function. Data flows through the pipeline from
+// one stage to the next, being transformed at each step.
+// Use case: Data processing streams, ETL operations, image filters chain
 func pipelineDemo() {
 	fmt.Println("Pipeline pattern:")
 	
@@ -378,6 +414,9 @@ func pipelineDemo() {
 	}
 }
 
+// generate is the first stage of the pipeline
+// It takes a variadic list of integers and sends them to an output channel
+// This represents a data source stage in the pipeline
 func generate(nums ...int) <-chan int {
 	out := make(chan int)
 	go func() {
@@ -389,6 +428,9 @@ func generate(nums ...int) <-chan int {
 	return out
 }
 
+// square is the second stage of the pipeline
+// It receives integers from an input channel, squares them, and sends results to output channel
+// This represents a data transformation stage in the pipeline
 func square(in <-chan int) <-chan int {
 	out := make(chan int)
 	go func() {
@@ -400,6 +442,10 @@ func square(in <-chan int) <-chan int {
 	return out
 }
 
+// workerPoolDemo demonstrates the Worker Pool pattern
+// Worker Pool: A fixed number of worker goroutines process jobs from a shared queue
+// This pattern limits concurrency while efficiently processing a large number of tasks
+// Use case: Rate-limited API calls, database operations, bounded parallel processing
 func workerPoolDemo() {
 	fmt.Println("Worker pool pattern:")
 	
@@ -424,14 +470,19 @@ func workerPoolDemo() {
 	}
 }
 
+// worker is a worker goroutine in the worker pool
+// It receives jobs from the jobs channel, processes them, and sends results
+// The worker continues until the jobs channel is closed
 func worker(id int, jobs <-chan int, results chan<- int) {
 	for job := range jobs {
 		fmt.Printf("Worker %d processing job %d\n", id, job)
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond) // Simulate work
 		results <- job * 2
 	}
 }
 
+// channelBestPracticesDemo demonstrates recommended patterns for using channels safely
+// Following these practices prevents deadlocks, goroutine leaks, and race conditions
 func channelBestPracticesDemo() {
 	fmt.Println("\n--- Channel Best Practices ---")
 	

@@ -112,6 +112,8 @@ func main() {
 	selectPatternsDemo()
 }
 
+// basicSelectDemo demonstrates the fundamental select statement usage
+// Select waits on multiple channel operations and executes the first one ready
 func basicSelectDemo() {
 	fmt.Println("\n--- Basic Select Statement ---")
 
@@ -140,6 +142,8 @@ func basicSelectDemo() {
 	}
 }
 
+// selectWithTimeoutDemo demonstrates implementing timeouts using select and time.After
+// Prevents operations from blocking indefinitely
 func selectWithTimeoutDemo() {
 	fmt.Println("\n--- Select with Timeout ---")
 
@@ -168,6 +172,8 @@ func selectWithTimeoutDemo() {
 	}
 }
 
+// nonBlockingSelectDemo demonstrates non-blocking channel operations
+// Using select without waiting allows immediate continuation if channels aren't ready
 func nonBlockingSelectDemo() {
 	fmt.Println("\n--- Non-blocking Select ---")
 
@@ -198,6 +204,8 @@ func nonBlockingSelectDemo() {
 	}
 }
 
+// selectWithDefaultDemo demonstrates default case usage in select
+// Default case executes immediately if no other case is ready, preventing blocking
 func selectWithDefaultDemo() {
 	fmt.Println("\n--- Select with Default Case ---")
 
@@ -228,6 +236,8 @@ func selectWithDefaultDemo() {
 	}
 }
 
+// channelMultiplexingDemo demonstrates multiplexing multiple channels
+// Select efficiently handles multiple channel sources without explicit coordination
 func channelMultiplexingDemo() {
 	fmt.Println("\n--- Channel Multiplexing ---")
 
@@ -265,6 +275,8 @@ func channelMultiplexingDemo() {
 	}
 }
 
+// selectPatternsDemo showcases common patterns using select statement
+// Demonstrates real-world use cases for concurrent programming
 func selectPatternsDemo() {
 	fmt.Println("\n--- Select Patterns ---")
 
@@ -281,6 +293,8 @@ func selectPatternsDemo() {
 	gracefulShutdownDemo()
 }
 
+// fanInSelectDemo demonstrates the fan-in pattern using select
+// Merges multiple input channels into one, handling channel closures gracefully
 func fanInSelectDemo() {
 	fmt.Println("Fan-in with select:")
 
@@ -325,6 +339,8 @@ func fanInSelectDemo() {
 	}
 }
 
+// heartbeatDemo demonstrates a heartbeat pattern for monitoring
+// Provides regular status updates while processing work
 func heartbeatDemo() {
 	fmt.Println("Heartbeat pattern:")
 
@@ -357,6 +373,8 @@ func heartbeatDemo() {
 	}
 }
 
+// rateLimitingDemo demonstrates rate limiting with select and ticker
+// Controls the frequency of operations to prevent resource exhaustion
 func rateLimitingDemo() {
 	fmt.Println("Rate limiting pattern:")
 
@@ -383,6 +401,8 @@ func rateLimitingDemo() {
 	}
 }
 
+// gracefulShutdownDemo demonstrates graceful shutdown using select
+// Allows workers to stop cleanly when a shutdown signal is received
 func gracefulShutdownDemo() {
 	fmt.Println("Graceful shutdown pattern:")
 

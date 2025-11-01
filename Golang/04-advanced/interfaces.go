@@ -170,6 +170,8 @@ func (t Triangle) Perimeter() float64 {
 	return t.Base + t.Height + hypotenuse
 }
 
+// basicInterfaceDemo demonstrates basic interface usage with polymorphism
+// Shows how different types can satisfy the same interface
 func basicInterfaceDemo() {
 	fmt.Println("\n--- Basic Interface Usage ---")
 	
@@ -193,10 +195,14 @@ func basicInterfaceDemo() {
 	printShapeInfo(Circle{Radius: 3})
 }
 
+// printShapeInfo accepts any type that implements the Shape interface
+// Demonstrates interface as a function parameter for polymorphism
 func printShapeInfo(s Shape) {
 	fmt.Printf("Shape info - Area: %.2f, Perimeter: %.2f\n", s.Area(), s.Perimeter())
 }
 
+// interfaceImplementationDemo shows implicit interface implementation
+// Go doesn't require explicit "implements" keyword - types automatically satisfy interfaces
 func interfaceImplementationDemo() {
 	fmt.Println("\n--- Interface Implementation ---")
 	
@@ -230,6 +236,8 @@ func interfaceImplementationDemo() {
 	fmt.Printf("Triangle as Shape: Area = %.2f\n", shape.Area())
 }
 
+// emptyInterfaceDemo demonstrates interface{} which can hold any type
+// The empty interface is satisfied by all types since it has zero methods
 func emptyInterfaceDemo() {
 	fmt.Println("\n--- Empty Interface ---")
 	
@@ -256,10 +264,14 @@ func emptyInterfaceDemo() {
 	printAnyType(map[string]int{"one": 1, "two": 2})
 }
 
+// printAnyType accepts any type using the empty interface
+// Useful for generic functions that need to handle multiple types
 func printAnyType(value interface{}) {
 	fmt.Printf("Value: %v, Type: %T\n", value, value)
 }
 
+// typeAssertionsDemo demonstrates type assertions and type switches
+// Shows how to extract concrete types from interface values
 func typeAssertionsDemo() {
 	fmt.Println("\n--- Type Assertions ---")
 	
@@ -298,6 +310,8 @@ func typeAssertionsDemo() {
 	}
 }
 
+// interfaceCompositionDemo demonstrates composing larger interfaces from smaller ones
+// Shows how to build complex interfaces using interface embedding
 func interfaceCompositionDemo() {
 	fmt.Println("\n--- Interface Composition ---")
 	
@@ -351,6 +365,8 @@ func interfaceCompositionDemo() {
 	fmt.Printf("Document content: %s\n", doc.Read())
 }
 
+// interfaceBestPracticesDemo showcases recommended interface design patterns
+// Demonstrates the principles: small interfaces, composition, and proper naming
 func interfaceBestPracticesDemo() {
 	fmt.Println("\n--- Interface Best Practices ---")
 	
@@ -393,15 +409,19 @@ type Processor struct {
 	name string
 }
 
+// NewProcessor creates and returns a concrete Processor type
+// Demonstrates "accept interfaces, return concrete types" pattern
 func NewProcessor() *Processor {
 	return &Processor{name: "Default Processor"}
 }
 
+// Process method demonstrates accepting interface-typed parameters
 func (p *Processor) Process(data string) {
 	fmt.Printf("Processing '%s' with %s\n", data, p.name)
 }
 
-// Stringer interface (built-in)
+// String implements the Stringer interface for custom string representation
+// This method is automatically called by fmt.Print* functions
 func (p Processor) String() string {
 	return fmt.Sprintf("Processor: %s", p.name)
 }

@@ -106,7 +106,9 @@ func main() {
 	contextBestPracticesDemo()
 }
 
-// Basic context usage
+// basicContextDemo demonstrates the two root contexts in Go
+// Background: Used at the start of requests, in main(), and in tests
+// TODO: Placeholder when the context to use isn't clear yet
 func basicContextDemo() {
 	fmt.Println("\n--- Basic Context Usage ---")
 
@@ -124,6 +126,9 @@ func basicContextDemo() {
 	// Background is typically used at the beginning of a request or operation
 }
 
+// contextWithTimeoutDemo demonstrates context.WithTimeout
+// WithTimeout creates a context that automatically cancels after a specified duration
+// Useful for operations that should not exceed a time limit (API calls, DB queries)
 func contextWithTimeoutDemo() {
 	fmt.Println("\n--- Context with Timeout ---")
 
@@ -143,6 +148,8 @@ func contextWithTimeoutDemo() {
 	fmt.Println("All operations finished or timed out")
 }
 
+// slowOperation simulates a task that respects context cancellation
+// It demonstrates checking ctx.Done() channel to stop work when context is canceled
 func slowOperation(ctx context.Context, name string, duration time.Duration) {
 	select {
 	case <-time.After(duration):
@@ -152,6 +159,9 @@ func slowOperation(ctx context.Context, name string, duration time.Duration) {
 	}
 }
 
+// contextWithDeadlineDemo demonstrates context.WithDeadline
+// WithDeadline creates a context that cancels at a specific point in time
+// Use when you have an absolute deadline (e.g., "operation must complete by 3pm")
 func contextWithDeadlineDemo() {
 	fmt.Println("\n--- Context with Deadline ---")
 
@@ -184,6 +194,9 @@ func contextWithDeadlineDemo() {
 	}
 }
 
+// contextWithCancelDemo demonstrates context.WithCancel
+// WithCancel creates a context that can be manually canceled by calling cancel()
+// Useful for stopping operations based on application logic, not just time limits
 func contextWithCancelDemo() {
 	fmt.Println("\n--- Context with Cancellation ---")
 
@@ -207,6 +220,8 @@ func contextWithCancelDemo() {
 	fmt.Println("All workers stopped")
 }
 
+// worker is a goroutine that respects context cancellation
+// It runs in a loop until the context is canceled, demonstrating graceful shutdown
 func worker(ctx context.Context, id int) {
 	for {
 		select {
@@ -220,6 +235,9 @@ func worker(ctx context.Context, id int) {
 	}
 }
 
+// contextWithValuesDemo demonstrates context.WithValue for request-scoped data
+// Store only request-scoped data like user IDs, request IDs, auth tokens
+// Use typed keys to avoid collisions between packages
 func contextWithValuesDemo() {
 	fmt.Println("\n--- Context with Values ---")
 
@@ -244,6 +262,8 @@ func contextWithValuesDemo() {
 	processRequest(ctx)
 }
 
+// processRequest retrieves values from context and performs authorization
+// Demonstrates the typical pattern of extracting context values safely with type assertions
 func processRequest(ctx context.Context) {
 	type contextKey string
 
@@ -274,6 +294,8 @@ func processRequest(ctx context.Context) {
 	logRequest(ctx)
 }
 
+// authorizeUser checks user role from context for authorization decisions
+// Shows how context values can be used for cross-cutting concerns
 func authorizeUser(ctx context.Context) {
 	type contextKey string
 	const roleKey contextKey = "role"
@@ -287,6 +309,8 @@ func authorizeUser(ctx context.Context) {
 	}
 }
 
+// logRequest retrieves request ID from context for logging correlation
+// Demonstrates using context for distributed tracing and log correlation
 func logRequest(ctx context.Context) {
 	type contextKey string
 	const requestIDKey contextKey = "requestID"
@@ -296,6 +320,8 @@ func logRequest(ctx context.Context) {
 	}
 }
 
+// contextInHTTPDemo demonstrates how context is used in HTTP servers
+// HTTP requests have built-in contexts that cancel when clients disconnect
 func contextInHTTPDemo() {
 	fmt.Println("\n--- Context in HTTP Servers ---")
 
@@ -325,6 +351,8 @@ func contextInHTTPDemo() {
 	fmt.Println("- Pass context to database calls, external APIs, etc.")
 }
 
+// exampleHandler shows how to use context in an HTTP handler
+// Always pass r.Context() to downstream operations to propagate cancellation
 func exampleHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -342,6 +370,8 @@ func exampleHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Query result: %s\n", result)
 }
 
+// queryDatabase simulates a database query that respects context cancellation
+// Real database drivers should accept context to cancel long-running queries
 func queryDatabase(ctx context.Context, query string) (string, error) {
 	// Simulate database query
 	result := make(chan string, 1)
@@ -359,6 +389,8 @@ func queryDatabase(ctx context.Context, query string) (string, error) {
 	}
 }
 
+// contextBestPracticesDemo showcases recommended patterns and conventions
+// Following these practices ensures proper context usage throughout your application
 func contextBestPracticesDemo() {
 	fmt.Println("\n--- Context Best Practices ---")
 
@@ -395,6 +427,8 @@ func contextBestPracticesDemo() {
 	demonstrateContextPropagation(ctx)
 }
 
+// demonstrateCancellationCheck shows how to periodically check for cancellation
+// In long-running loops, check ctx.Done() regularly to enable early termination
 func demonstrateCancellationCheck() {
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 	defer cancel()
@@ -412,25 +446,30 @@ func demonstrateCancellationCheck() {
 	}
 }
 
+// demonstrateContextPropagation shows passing context through all layers
+// Context should flow from top to bottom through your application's call stack
 func demonstrateContextPropagation(ctx context.Context) {
 	// Layer 1
 	fmt.Println("   -> Service Layer")
 	serviceLayerFunction(ctx)
 }
 
+// serviceLayerFunction represents a service layer that receives and propagates context
 func serviceLayerFunction(ctx context.Context) {
 	// Layer 2
 	fmt.Println("      -> Repository Layer")
 	repositoryLayerFunction(ctx)
 }
 
+// repositoryLayerFunction represents a data layer that receives context for DB operations
 func repositoryLayerFunction(ctx context.Context) {
 	// Layer 3
 	fmt.Println("         -> Database Layer")
 	fmt.Println("         Context propagated through all layers!")
 }
 
-// Real-world example: Context with multiple features
+// realWorldExample demonstrates combining context features for a realistic scenario
+// Shows timeout, values, and propagation working together in an API handler
 func realWorldExample() {
 	fmt.Println("\n--- Real-World Example ---")
 
@@ -449,6 +488,7 @@ func realWorldExample() {
 	}
 }
 
+// processAPIRequest handles an API request with context for auth, timeout, and cancellation
 func processAPIRequest(ctx context.Context) error {
 	// Check authentication
 	type contextKey string
@@ -472,6 +512,7 @@ func processAPIRequest(ctx context.Context) error {
 	return nil
 }
 
+// fetchUserData simulates fetching user data from a database with context support
 func fetchUserData(ctx context.Context, userID string) error {
 	// Simulate database query
 	select {
@@ -483,6 +524,7 @@ func fetchUserData(ctx context.Context, userID string) error {
 	}
 }
 
+// callExternalAPI simulates calling an external API with context for timeout handling
 func callExternalAPI(ctx context.Context) error {
 	// Simulate API call
 	select {
