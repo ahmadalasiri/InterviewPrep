@@ -877,9 +877,3 @@ const handleClick = () => {
 ---
 
 This covers the basic React interview questions. Master these fundamentals before moving on to hooks and advanced concepts!
-
-
-
-
-
-
