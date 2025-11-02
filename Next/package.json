@@ -1,0 +1,45 @@
+{
+  "name": "nextjs-interview-prep",
+  "version": "1.0.0",
+  "description": "Complete Next.js learning guide with interview preparation materials",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "keywords": [
+    "nextjs",
+    "react",
+    "interview",
+    "preparation",
+    "ssr",
+    "ssg",
+    "app-router",
+    "pages-router",
+    "server-components",
+    "api-routes",
+    "performance",
+    "best-practices"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "@types/react": "^18.2.22",
+    "@types/react-dom": "^18.2.7",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.50.0",
+    "eslint-config-next": "^14.0.0",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.3",
+    "typescript": "^5.2.2"
+  }
+}
+
