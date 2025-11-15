@@ -30,7 +30,7 @@ I'm a Software Engineer with approximately 3 years of experience, mainly in back
 
 **2. Why are you interested in working at Tyk specifically?**
 
-A few things make Tyk stand out to me. First, the fully remote setup really fits how I like to work — I've been working remotely for a while and it's where I do my best work. Second, I looked at reviews on Glassdoor and was impressed — people describe Tyk as a great place to work, with a positive culture, and many of them stay for years. That says a lot about the environment and stability. Third, I really like that Tyk is open source — contributing to open-source projects has always been a personal goal. And finally, I can see Tyk as a place where I'd learn a lot from talented teammates, which is really important to me.
+There are several reasons why I'm very interested in Tyk. First, I'm looking for stability, and that's exactly what I found at Tyk. When I researched the company, I read reviews on Glassdoor where most people describe Tyk as a great place to work. I also checked many LinkedIn profiles of people at Tyk, and I noticed that most of them have been there for years, which says a lot about the stability and positive work environment at Tyk. Second, the fully remote setup aligns perfectly with how I like to work — almost all my previous experience, whether freelancing or full-time in companies, was remote, and it's where I do my best work. Third, I really like that Tyk is open source — contributing to open-source projects has always been a personal goal for me. Finally, I can see Tyk as a place where I'd learn a lot from talented teammates, which is really important to me.
 
 **3. What attracted you to this Mid-Level Full-Stack Engineer role?**
 
