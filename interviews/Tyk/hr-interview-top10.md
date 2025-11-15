@@ -13,12 +13,13 @@
 2. Why are you interested in working at Tyk specifically?
 3. What attracted you to this Mid-Level Full-Stack Engineer role?
 4. What's your experience with remote work?
-5. What has been your proudest moment or biggest achievement in your career so far?
-6. Tell me about a time you made a significant impact in the workplace.
-7. What are your career goals for the next 2-3 years?
-8. How do you handle autonomy and self-direction in your work?
-9. What questions do you have for me about Tyk or the role?
-10. When would you be available to start?
+5. How do you handle working with different time zones?
+6. What has been your proudest moment or biggest achievement in your career so far?
+7. Tell me about a time you made a significant impact in the workplace.
+8. What are your career goals for the next 2-3 years?
+9. How do you handle autonomy and self-direction in your work?
+10. What questions do you have for me about Tyk or the role?
+11. When would you be available to start?
 
 ---
 
@@ -38,25 +39,29 @@ This role lines up well with my skills. I have strong experience in backend deve
 
 **4. What's your experience with remote work?**
 
-I've been working remotely for all my professional roles. At TIXAE.AI, I worked remotely with a team based in Florida, United States. At TechBridge Lab, I worked remotely with a US-based team. All my freelance projects have been remote, working with international clients. This experience has taught me how to communicate effectively, manage my time, stay motivated, and deliver results without needing to be in an office. I'm very comfortable with the remote work model and have consistently delivered high-quality work in remote settings.
+I've been working remotely for all my previous roles. At TIXAE.AI, I worked remotely with a team distributed across the United States, UK, Turkey, and Egypt. All my freelance projects have been remote, working with clients from Canada, Germany, Saudi Arabia, and Egypt. This experience has improved my communication skills, time management, and ability to deliver results without needing to be in an office.So I'm very comfortable with the remote work model.
 
-**5. What has been your proudest moment or biggest achievement in your career so far?**
+**5. How do you handle working with different time zones?**
+
+At TIXAE.AI, we ensured we were all available for at least 5 hours of overlapping time to collaborate effectively. I'm always available to collaborate with the team if anyone needs anything, and I'm comfortable adjusting my work hours to ensure sufficient overlap for real-time collaboration.
+
+**6. What has been your proudest moment or biggest achievement in your career so far?**
 
 One of my proudest moments was leading a database migration from MongoDB to PostgreSQL using Drizzle ORM at Feedbq.io. This was a critical project that required careful planning and execution. I achieved zero downtime and 100% data integrity during the migration, which was essential for a production system serving enterprise clients. This project required deep understanding of both database systems, careful data transformation, and coordination with the team to ensure no service interruption. The successful completion of this migration significantly improved the system's reliability and performance.
 
-**6. Tell me about a time you made a significant impact in the workplace.**
+**7. Tell me about a time you made a significant impact in the workplace.**
 
 At Feedbq.io, I implemented a Redis caching layer with TTL strategies and cache invalidation that reduced API response times by 60%, from 800ms to 320ms. This had a direct impact on user experience and system performance. These optimizations weren't just technical improvements—they directly translated to better user satisfaction and system scalability.
 
-**7. What are your career goals for the next 2-3 years?**
+**8. What are your career goals for the next 2-3 years?**
 
 In the next 2-3 years, I want to deepen my expertise in full-stack development, particularly in Go and React. I'd like to take on more architectural responsibilities and contribute to system design decisions. I'm also interested in contributing to open-source projects, which aligns with Tyk being open source. I want to continue learning from experienced engineers and eventually mentor others. Working at a company like Tyk would help me achieve these goals by providing opportunities to work on challenging problems and learn from a talented team.
 
-**8. How do you handle autonomy and self-direction in your work?**
+**9. How do you handle autonomy and self-direction in your work?**
 
 I thrive with autonomy. I'm self-motivated and can work independently while staying aligned with team goals. I take initiative to identify what needs to be done and prioritize effectively. I communicate proactively so others know what I'm working on, and I ask for help when needed. I've worked in environments with high autonomy, including freelance work, and I've proven I can deliver results without micromanagement. I appreciate having the freedom to find the best way to solve problems. This aligns well with Tyk's principle of "radical responsibility" where employees are trusted to manage their work effectively.
 
-**9. What questions do you have for me about Tyk or the role?**
+**10. What questions do you have for me about Tyk or the role?**
 
 - What do you enjoy most about working at Tyk?
 - How would you describe Tyk's culture and what makes it unique?
@@ -66,7 +71,7 @@ I thrive with autonomy. I'm self-motivated and can work independently while stay
 - What does career growth look like for engineers at Tyk?
 - How does onboarding work for new engineers?
 
-**10. When would you be available to start?**
+**11. When would you be available to start?**
 
 [Note: Be ready to provide your availability. Consider notice periods, current commitments, and any personal considerations. Typically, you might need 2-4 weeks notice for your current role.]
 
