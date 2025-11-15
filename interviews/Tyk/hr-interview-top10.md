@@ -57,9 +57,9 @@ At Feedbq.io, I implemented a Redis caching layer with TTL strategies and cache 
 
 In the next 2-3 years, I want to deepen my expertise in full-stack development, particularly in Go and React. I'd like to take on more architectural responsibilities and contribute to system design decisions. I'm also interested in contributing to open-source projects, which aligns with Tyk being open source. I want to continue learning from experienced engineers and eventually mentor others. Working at a company like Tyk would help me achieve these goals by providing opportunities to work on challenging problems and learn from a talented team.
 
-**9. How do you handle autonomy and self-direction in your work?**
+**9. How do you work independently?**
 
-I thrive with autonomy. I'm self-motivated and can work independently while staying aligned with team goals. I take initiative to identify what needs to be done and prioritize effectively. I communicate proactively so others know what I'm working on, and I ask for help when needed. I've worked in environments with high autonomy, including freelance work, and I've proven I can deliver results without micromanagement. I appreciate having the freedom to find the best way to solve problems. This aligns well with Tyk's principle of "radical responsibility" where employees are trusted to manage their work effectively.
+I work well on my own. I'm self-motivated and can manage my work without constant supervision. I figure out what needs to be done, prioritize tasks, and keep the team updated on my progress. I ask for help when I need it. I've worked in freelance and company roles where I had a lot of independence, and I've shown I can deliver results without being micromanaged. This matches Tyk's "radical responsibility" approach where people are trusted to manage their own work.
 
 **10. What questions do you have for me about Tyk or the role?**
 
@@ -70,10 +70,13 @@ I thrive with autonomy. I'm self-motivated and can work independently while stay
 - How does the team typically collaborate in a remote setting?
 - What does career growth look like for engineers at Tyk?
 - How does onboarding work for new engineers?
+- How does Tyk define success for this role in the first 3 months?
+- How does the engineering team collaborate across time zones?
+- What are the biggest challenges the team is facing right now?
 
 **11. When would you be available to start?**
 
-[Note: Be ready to provide your availability. Consider notice periods, current commitments, and any personal considerations. Typically, you might need 2-4 weeks notice for your current role.]
+I prefer if i can start from the beginning of the next month, but i'm flexible and can start earlier if needed.
 
 ---
 
