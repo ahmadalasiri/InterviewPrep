@@ -26,7 +26,7 @@
 
 **1. Tell me about yourself and your background.**
 
-I'm a backend-focused Software Engineer with hands-on experience designing and delivering scalable, high-performance systems using Go, Node.js, and React. I'm currently working as a Full Stack Engineer at TIXAE.AI, where I'm developing AI-powered solutions. Before that, I worked at TechBridge Lab on multiple SaaS projects including DubbingHub, an AI-powered video dubbing platform, and Feedbq.io, an enterprise feedback management platform. I also have extensive freelance experience delivering end-to-end solutions for international clients, including a 16-month ERP and e-commerce platform project. I'm skilled in API design, microservices, distributed architectures, and have a strong focus on reliability, clean code, and system performance.
+I'm a Software Engineer with approximately 3 years of experience, mainly in backend development. I have hands-on experience designing and delivering scalable, high-performance systems using Golang, Node.js, and React. The last company I worked at was TIXAE.AI, where I worked as a Full Stack Engineer developing AI-powered solutions. Before that, I worked at TechBridge Lab on multiple SaaS projects including DubbingHub, an AI-powered video dubbing platform, and Feedbq.io, an enterprise feedback management platform. I also have extensive freelance experience delivering end-to-end solutions for many clients from Canada, Germany, Saudi Arabia, and Egypt, including e-commerce platform, ERP systems, and backend services for many mobile applications.
 
 **2. Why are you interested in working at Tyk specifically?**
 
@@ -38,7 +38,7 @@ This role lines up well with my skills. I have strong experience in backend deve
 
 **4. What's your experience with remote work?**
 
-I've been working remotely for all my professional roles. At TIXAE.AI, I work remotely with a team based in Florida, United States. At TechBridge Lab, I worked remotely with a US-based team. All my freelance projects have been remote, working with international clients. This experience has taught me how to communicate effectively, manage my time, stay motivated, and deliver results without needing to be in an office. I'm very comfortable with the remote work model and have consistently delivered high-quality work in remote settings.
+I've been working remotely for all my professional roles. At TIXAE.AI, I worked remotely with a team based in Florida, United States. At TechBridge Lab, I worked remotely with a US-based team. All my freelance projects have been remote, working with international clients. This experience has taught me how to communicate effectively, manage my time, stay motivated, and deliver results without needing to be in an office. I'm very comfortable with the remote work model and have consistently delivered high-quality work in remote settings.
 
 **5. What has been your proudest moment or biggest achievement in your career so far?**
 
@@ -46,7 +46,7 @@ One of my proudest moments was leading a database migration from MongoDB to Post
 
 **6. Tell me about a time you made a significant impact in the workplace.**
 
-At Feedbq.io, I implemented a Redis caching layer with TTL strategies and cache invalidation that reduced API response times by 60%, from 800ms to 320ms. This had a direct impact on user experience and system performance. I also optimized database queries at TIXAE.AI, reducing average page load time by 50%, which significantly improved user experience. These optimizations weren't just technical improvements—they directly translated to better user satisfaction and system scalability.
+At Feedbq.io, I implemented a Redis caching layer with TTL strategies and cache invalidation that reduced API response times by 60%, from 800ms to 320ms. This had a direct impact on user experience and system performance. These optimizations weren't just technical improvements—they directly translated to better user satisfaction and system scalability.
 
 **7. What are your career goals for the next 2-3 years?**
 
@@ -89,6 +89,7 @@ I thrive with autonomy. I'm self-motivated and can work independently while stay
 ## Quick Reference - STAR Method
 
 When answering behavioral questions (achievements, impact, challenges), use STAR:
+
 - **Situation:** Set the context
 - **Task:** What needed to be done
 - **Action:** What you did
@@ -97,4 +98,3 @@ When answering behavioral questions (achievements, impact, challenges), use STAR
 ---
 
 **Good luck with your interview on January 17th!**
-
