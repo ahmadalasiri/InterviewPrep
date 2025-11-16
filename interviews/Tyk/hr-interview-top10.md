@@ -7,7 +7,7 @@
 
 ---
 
-## Top 12 Most Likely HR Questions (Without Answers)
+## Top 13 Most Likely HR Questions (Without Answers)
 
 1. Tell me about yourself and your background.
 2. Why did you leave your previous company?
@@ -21,10 +21,11 @@
 10. How do you handle autonomy and self-direction in your work?
 11. What questions do you have for me about Tyk or the role?
 12. When would you be available to start?
+13. Can you tell me about the compensation package, including benefits and equity?
 
 ---
 
-## Top 12 Questions with Answers
+## Top 13 Questions with Answers
 
 **1. Tell me about yourself and your background.**
 
@@ -82,6 +83,10 @@ I work well on my own. I'm self-motivated and can manage my work without constan
 **12. When would you be available to start?**
 
 I prefer if i can start from the beginning of the next month, but i'm flexible and can start earlier if needed.
+
+**13. Can you tell me about the compensation package, including benefits and equity?**
+
+I'd love to learn more about the full compensation package. Could you share details about the salary range, equity or stock options, health insurance, retirement benefits, paid time off, and any other perks or benefits that come with the role? I'm particularly interested in understanding the complete package to make an informed decision.
 
 ---
 

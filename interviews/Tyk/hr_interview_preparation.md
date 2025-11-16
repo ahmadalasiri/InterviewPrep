@@ -58,9 +58,10 @@ This document contains:
 
 ### **Logistics**
 
-27. What’s your notice period / availability?
+27. What's your notice period / availability?
 28. What are your salary expectations?
-29. Do you have any questions for us?
+29. Can you tell me about the compensation package, including benefits and equity?
+30. Do you have any questions for us?
 
 ---
 
@@ -176,9 +177,13 @@ I can start on 1 December 2025.
 
 ### **28. Salary expectations.**
 
-I’m flexible and open to discussing a fair number based on the role and market.
+I'm flexible and open to discussing a fair number based on the role and market.
 
-### **29. Questions for them.**
+### **29. Compensation package.**
+
+I'd love to learn more about the full compensation package. Could you share details about the salary range, equity or stock options, health insurance, retirement benefits, paid time off, and any other perks or benefits that come with the role? I'm particularly interested in understanding the complete package to make an informed decision.
+
+### **30. Questions for them.**
 
 - How does Tyk define success for this role in the first 3 months?
 - How does the engineering team collaborate across time zones?
