@@ -76,6 +76,7 @@
 43. Is there anything else you'd like me to know about you?
 44. What are your salary expectations?
 45. When would you be available to start?
+46. During your experience at Tyk, have you done any layoffs at Tyk to reduce costs at any time?
 
 ---
 
@@ -264,6 +265,7 @@ I contribute by being reliable, supportive, and respectful. I communicate clearl
 - What does career growth look like for engineers at Tyk?
 - How does the team typically collaborate in a remote setting?
 - What are the biggest challenges facing the engineering team right now?
+- During your experience at Tyk, have you done any layoffs at Tyk to reduce costs at any time?
 
 **42. What questions do you have about the role?**
 

@@ -183,3 +183,4 @@ I’m flexible and open to discussing a fair number based on the role and market
 - How does Tyk define success for this role in the first 3 months?
 - How does the engineering team collaborate across time zones?
 - What are the biggest challenges the team is currently facing?
+- During your experience at Tyk, have you done any layoffs at Tyk to reduce costs at any time?
