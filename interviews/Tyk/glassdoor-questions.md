@@ -22,3 +22,14 @@
 # Interview Process & Experience
 
 - The first interview was a kind of behavioral interview. The second interview was related to software development.
+
+**11. What questions do you have for me about Tyk or the role?**
+
+- I noticed that you work in tyk for a long time, what is the most thing you love about working at Tyk?
+- How does the team collaborate in a remote setting and across different time zones?
+- What does career growth look like for engineers at Tyk?
+- What does a typical day or week look like for this role?
+- How does Tyk define success for this role in the first 3 months?
+- What are the biggest challenges the team is facing right now?
+- How does onboarding work for new engineers?
+- During your experience at Tyk, have you do any layoffs to reduce costs at any time?
