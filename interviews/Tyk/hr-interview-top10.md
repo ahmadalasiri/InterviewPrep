@@ -69,16 +69,14 @@ I work well on my own. I'm self-motivated and can manage my work without constan
 
 **11. What questions do you have for me about Tyk or the role?**
 
-- What do you enjoy most about working at Tyk?
-- How would you describe Tyk's culture and what makes it unique?
-- What does a typical day or week look like for this role?
-- What are the main projects or initiatives the team is working on?
-- How does the team typically collaborate in a remote setting?
+- I noticed that you work in tyk for a long time, what is the most thing you love about working at Tyk?
+- How does the team collaborate in a remote setting and across different time zones?
 - What does career growth look like for engineers at Tyk?
-- How does onboarding work for new engineers?
+- What does a typical day or week look like for this role?
 - How does Tyk define success for this role in the first 3 months?
-- How does the engineering team collaborate across time zones?
 - What are the biggest challenges the team is facing right now?
+- How does onboarding work for new engineers?
+- During your experience at Tyk, have you do any layoffs to reduce costs at any time?
 
 **12. When would you be available to start?**
 
