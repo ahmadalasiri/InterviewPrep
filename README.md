@@ -33,6 +33,7 @@ Comprehensive interview preparation materials for software engineering roles, co
 - **[Git](Git/)** - Version control, branching strategies, and workflows
 - **[Docker](Docker/)** - Containerization and orchestration
 - **[Testing](Testing/)** - Unit testing, TDD, integration testing, and testing best practices
+- **[Web Security](WebSecurity/)** - XSS, CSRF, SQL injection, authentication, and security best practices
 - **[Algorithms](Algorithms/)** - Data structures and algorithms
 
 ## 🎯 Featured Topics
@@ -92,6 +93,8 @@ Topic/
 - [Git Workflows](Git/04-collaboration/)
 - [Node.js Event Loop](NodeJS/08-advanced/)
 - [Database Indexing](Database/PostgreSQL/)
+- [XSS & CSRF Protection](WebSecurity/00-interview-preparation/)
+- [JWT Authentication](WebSecurity/04-auth/jwt-authentication.ts)
 
 ## 📊 Coverage
 
@@ -103,6 +106,7 @@ Topic/
 - ✅ OOP & Design Patterns
 - ✅ Git & Version Control
 - ✅ Testing & TDD
+- ✅ Web Security (XSS, CSRF, SQL Injection, Authentication)
 - 🚧 Docker (In Progress)
 - 🚧 Algorithms (In Progress)
 
