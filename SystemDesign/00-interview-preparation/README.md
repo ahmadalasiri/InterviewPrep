@@ -47,6 +47,25 @@ This folder contains comprehensive system design interview questions organized b
 - Video streaming platforms
 - Search engines
 
+### 7. [API Protocols & Communication Questions](07-api-protocols-questions.md)
+
+- REST API principles
+- gRPC and Protocol Buffers
+- GraphQL queries, mutations, subscriptions
+- RPC (Remote Procedure Call)
+- WebSocket communication
+- Message queue protocols
+
+### 8. [API Gateway Questions](08-api-gateway-questions.md)
+
+- API Gateway fundamentals
+- Tyk API Gateway
+- Kong API Gateway
+- AWS API Gateway
+- Security and authentication
+- Performance optimization
+- Monitoring and observability
+
 ## 🎯 Interview Preparation Strategy
 
 ### Phase 1: Foundation (Week 1-2)
