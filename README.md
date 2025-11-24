@@ -32,6 +32,7 @@ Comprehensive interview preparation materials for software engineering roles, co
 
 - **[Git](Git/)** - Version control, branching strategies, and workflows
 - **[Docker](Docker/)** - Containerization and orchestration
+- **[Testing](Testing/)** - Unit testing, TDD, integration testing, and testing best practices
 - **[Algorithms](Algorithms/)** - Data structures and algorithms
 
 ## 🎯 Featured Topics
@@ -101,6 +102,7 @@ Topic/
 - ✅ System Design
 - ✅ OOP & Design Patterns
 - ✅ Git & Version Control
+- ✅ Testing & TDD
 - 🚧 Docker (In Progress)
 - 🚧 Algorithms (In Progress)
 
