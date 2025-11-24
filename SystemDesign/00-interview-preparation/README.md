@@ -66,6 +66,16 @@ This folder contains comprehensive system design interview questions organized b
 - Performance optimization
 - Monitoring and observability
 
+### 9. [Service Mesh Questions](09-service-mesh-questions.md)
+
+- Service Mesh fundamentals
+- Istio implementation
+- Linkerd implementation
+- Traffic management
+- Security (mTLS, authorization)
+- Observability (metrics, tracing, logging)
+- Common patterns (canary, blue-green, A/B testing)
+
 ## 🎯 Interview Preparation Strategy
 
 ### Phase 1: Foundation (Week 1-2)
