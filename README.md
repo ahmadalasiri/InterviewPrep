@@ -15,6 +15,8 @@ Comprehensive interview preparation materials for software engineering roles, co
 
 - **[React](React/)** - Component patterns, hooks, state management, and performance
 - **[NestJS](Nest/)** - Architecture, dependency injection, decorators, and microservices
+- **[Express](Express/)** - Middleware, routing, and REST API development
+- **[Next.js](Next/)** - Full-stack React framework, routing, and server-side rendering
 
 ### Databases
 
@@ -34,7 +36,10 @@ Comprehensive interview preparation materials for software engineering roles, co
 - **[Docker](Docker/)** - Containerization and orchestration
 - **[Testing](Testing/)** - Unit testing, TDD, integration testing, and testing best practices
 - **[Web Security](WebSecurity/)** - XSS, CSRF, SQL injection, authentication, and security best practices
-- **[Algorithms](Algorithms/)** - Data structures and algorithms
+- **[Cache](cache/)** - Caching strategies, TTL, and cache-aside patterns
+- **[Nginx](Nginx/)** - Web server, reverse proxy, and load balancing
+- **[Computer Science](CS/)** - OS, networks, and system architecture fundamentals
+- **[Data Structures & Algorithms](DSA/)** - Core data structures, algorithms, and patterns
 
 ## 🎯 Featured Topics
 
@@ -86,6 +91,9 @@ Topic/
 - [React Interview Questions](React/00-interview-preparation/)
 - [System Design Questions](SystemDesign/00-interview-preparation/)
 - [OOP Design Patterns](OOP/04-design-patterns/)
+- [Data Structures & Algorithms](DSA/00-interview-preparation/)
+- [Caching & Redis Overview](cache/00-interview-preparation/)
+- [Nginx Interview Questions](Nginx/00-interview-preparation/)
 
 ### Essential Concepts
 
@@ -95,20 +103,26 @@ Topic/
 - [Database Indexing](Database/PostgreSQL/)
 - [XSS & CSRF Protection](WebSecurity/00-interview-preparation/)
 - [JWT Authentication](WebSecurity/04-auth/jwt-authentication.ts)
+- [Caching Strategies](cache/01-basics/cache-fundamentals.js)
+- [OS & Networking Basics](CS/00-interview-preparation/)
 
 ## 📊 Coverage
 
 - ✅ JavaScript/TypeScript
 - ✅ React & NestJS
 - ✅ Node.js & Express
+- ✅ Next.js
 - ✅ Databases (MongoDB, PostgreSQL)
 - ✅ System Design
 - ✅ OOP & Design Patterns
 - ✅ Git & Version Control
 - ✅ Testing & TDD
 - ✅ Web Security (XSS, CSRF, SQL Injection, Authentication)
+- ✅ Caching & Redis
+- ✅ Nginx & Web Servers
+- ✅ CS Fundamentals (OS, Networks)
 - 🚧 Docker (In Progress)
-- 🚧 Algorithms (In Progress)
+- 🚧 Data Structures & Algorithms (In Progress)
 
 ## 🤝 Contributing
 
