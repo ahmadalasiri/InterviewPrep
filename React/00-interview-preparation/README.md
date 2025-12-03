@@ -39,6 +39,13 @@ This folder contains the most common React interview questions organized by diff
 - Code challenges and patterns
 - Common UI patterns
 
+### 6. [Build Tooling & Asset Delivery](06-build-tooling-questions.md)
+
+- Webpack vs Vite
+- Code splitting and bundling
+- Asset optimization
+- Tree-shaking and source maps
+
 ## 🎯 Interview Preparation Strategy
 
 ### Before the Interview
@@ -151,6 +158,11 @@ This folder contains the most common React interview questions organized by diff
 
 - [ ] Create React App
 - [ ] Vite
+- [ ] Webpack
+- [ ] Code splitting and bundling
+- [ ] Asset optimization
+- [ ] Tree-shaking
+- [ ] Source maps
 - [ ] Next.js
 - [ ] TypeScript with React
 - [ ] ESLint and Prettier
