@@ -3,15 +3,12 @@
 Core SQL syntax and operations that form the basis of all relational database interactions.
 
 ## Topics
-- **SQL Basics**: DDL (Data Definition Language), DML (Data Manipulation Language), DCL (Data Control Language).
-- **Create DB & Tables**: Constraints, data types, and identity columns.
-- **Joins**: INNER, LEFT, RIGHT, FULL OUTER, CROSS JOIN, and SELF JOIN.
-- **Aggregate Functions**: SUM, AVG, COUNT, MIN, MAX.
-- **Grouping**: GROUP BY and HAVING clauses.
-- **Union & Set Operators**: UNION, UNION ALL, INTERSECT, EXCEPT.
+- **[PostgreSQL Constraints](./constraints.md)**: Guarding data integrity.
+- **[Join Algorithms](./join-algorithms.md)**: Nested Loop, Hash, and Merge joins.
+- **[Grouping and Aggregates](./grouping-aggregates.md)**: GROUP BY, HAVING, and advanced groupings.
+- **[Set Operators](./set-operators.md)**: UNION, INTERSECT, and EXCEPT.
 
 ## Senior Engineer Considerations
-- Query optimization basics (SARGable queries).
-- Understanding join algorithms (Nested Loop, Hash, Merge).
-- Impact of data types on storage and performance.
-
+- Index-aware join optimization.
+- Impact of `work_mem` on Hash and Merge joins.
+- Set-based thinking vs. Procedural thinking.

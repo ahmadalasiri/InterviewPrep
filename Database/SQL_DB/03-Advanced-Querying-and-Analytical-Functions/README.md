@@ -3,18 +3,12 @@
 Moving beyond basic retrieval to complex data analysis and transformation.
 
 ## Topics
-- **Views**: Standard views, Indexed (Materialized) views, and security implications.
-- **Subqueries**: Correlated and non-correlated subqueries.
-- **CTEs (Common Table Expressions)**: Recursive and non-recursive CTEs.
-- **MERGE Statement**: Combining INSERT, UPDATE, and DELETE operations.
-- **Ranking Functions**: ROW_NUMBER(), RANK(), DENSE_RANK(), NTILE().
-- **Window Functions**: OVER(), PARTITION BY, ORDER BY, LAG(), LEAD(), FIRST_VALUE(), LAST_VALUE().
-- **Pivot & Unpivot**: Transforming rows to columns and vice versa.
-- **Analytical Queries**: Cumulative sums, moving averages.
+- **[Views and Materialized Views](./views-materialized.md)**: Virtual vs. Physical abstractions.
+- **[Window Functions](./window-functions.md)**: Ranking, Analytical, and Value functions.
+- **[CTEs and Recursive Queries](./ctes-recursive.md)**: Modular SQL and hierarchical data.
+- **[UPSERT and MERGE](./upsert-merge.md)**: Efficient data synchronization.
 
 ## Senior Engineer Considerations
-- Views vs. Materialized Views: Trade-offs in storage and fresh data.
-- Performance implications of subqueries vs. joins vs. CTEs.
-- Effective use of window functions for complex reporting.
-- Writing readable and maintainable complex queries.
-
+- Impact of Materialized View refresh on application performance.
+- Window functions vs. Self-joins.
+- CTE materialization boundaries in Postgres 12+.

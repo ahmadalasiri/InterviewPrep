@@ -3,14 +3,11 @@
 Ensuring data integrity and handling simultaneous access by multiple users.
 
 ## Topics
-- **ACID Properties**: Atomicity, Consistency, Isolation, Durability.
-- **Isolation Levels**: Read Uncommitted, Read Committed, Repeatable Read, Serializable, Snapshot.
-- **Locking & Blocking**: Shared, Exclusive, Update, Intent locks. Deadlocks.
-- **Optimistic vs. Pessimistic Concurrency**: When to use each approach.
-- **Multi-Version Concurrency Control (MVCC)**: How modern databases handle concurrency without locking.
+- **[Isolation Levels](./isolation-levels.md)**: Read Committed, Repeatable Read, and Serializable.
+- **[Locking Mechanisms](./locking-mechanisms.md)**: Row-level, Table-level, and Advisory locks.
+- **[Deadlocks](./deadlocks.md)**: Detection, prevention, and handling.
 
 ## Senior Engineer Considerations
-- Impact of isolation levels on application correctness and performance.
-- Strategies for minimizing deadlocks and long-running transactions.
-- Handling distributed transactions and the Two-Phase Commit (2PC) protocol.
-
+- Implementation of Retry Logic for serialization failures.
+- Monitoring lock contention with `pg_locks`.
+- Using `SKIP LOCKED` for high-performance queues.

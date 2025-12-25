@@ -3,15 +3,11 @@
 Techniques to ensure the database handles high load and complex queries efficiently.
 
 ## Topics
-- **Indexing**: Clustered vs. Non-clustered, covering indexes, filtered indexes, columnstore indexes.
-- **Index Maintenance**: Fragmentation, rebuilding, and reorganizing.
-- **Execution Plans**: Reading and interpreting graphical and XML plans.
-- **Statistics**: Importance of up-to-date statistics for the optimizer.
-- **Query Tuning**: Identifying bottlenecks, slow queries, and missing indexes.
+- **[Index Types](./index-types.md)**: B-Tree, GIN, GiST, BRIN, and more.
+- **[Execution Plans](./execution-plans.md)**: Reading EXPLAIN ANALYZE and identifying bottlenecks.
+- **[Query Tuning Strategies](./query-tuning.md)**: Fixing slow queries and optimizing configuration.
 
 ## Senior Engineer Considerations
-- Index design for read vs. write workloads.
-- Troubleshooting parameter sniffing and plan regressions.
-- Wait statistics and identifying resource contention.
-- Monitoring tools and performance baselining.
-
+- Index-Only Scans and the Visibility Map.
+- Write amplification from excessive indexing.
+- Tuning for SSD vs. HDD (random_page_cost).
